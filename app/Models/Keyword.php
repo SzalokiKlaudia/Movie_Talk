@@ -16,6 +16,6 @@ class Keyword extends Model
 
     public function movies()
     {
-        return $this->belongsToMany(Movie::class);
+        return $this->hasMany(MovieKeyword::class, 'keyword_id'); // 1:N kapcsolat
     }
 }

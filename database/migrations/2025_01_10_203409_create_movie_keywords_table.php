@@ -13,13 +13,16 @@ return new class extends Migration
     {
         Schema::create('movie_keywords', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('movie_id')->unique(); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
-            $table->unsignedBigInteger('keyword_id')->unique();
+            $table->unsignedBigInteger('movie_id'); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
+            $table->unsignedBigInteger('keyword_id');
         
 
             $table->foreign('movie_id')->references('id')->on('movies');
             $table->foreign('keyword_id')->references('id')->on('keywords');
             $table->timestamps();
+
+            $table->unique(['movie_id', 'keyword_id']);
+
         });
     }
 

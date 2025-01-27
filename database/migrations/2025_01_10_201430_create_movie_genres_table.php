@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('movie_genres', function (Blueprint $table) {
             $table->id();//alap típusa az id-nek nagyobb értéket vesz fel mint az int
-            $table->unsignedBigInteger('movie_id')->unique(); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
-            $table->unsignedBigInteger('genre_id')->unique();
+            $table->unsignedBigInteger('movie_id'); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
+            $table->unsignedBigInteger('genre_id');
             $table->timestamps();
 
             $table->foreign('movie_id')->references('id')->on('movies');
             $table->foreign('genre_id')->references('id')->on('genres');
+
+            $table->unique(['movie_id', 'genre_id']); //összetett unique értékek hogy ne legyen redundancia
+
         });
     }
 

@@ -22,11 +22,14 @@ class UserMovie extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function movie()
-    {
-        return $this->belongsTo(Movie::class, 'movie_id', 'id');
-    }
+
+
+       // 1 film -> több saját film (felhasználói profil)
+       public function movie()
+       {
+           return $this->belongsTo(Movie::class, 'movie_id'); // N:1 kapcsolat
+       }
 }

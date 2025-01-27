@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,19 +14,24 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('user_name')->unique();
-            $table->string('email')->unique();
-            $table->string('name');
+            $table->string('user_name',30)->unique();
+            $table->string('email',50)->unique();
+            $table->string('name',30);
             $table->enum('gender', ['male','female']);
             $table->integer('birth_year');
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_deleted')->default(false);
-            $table->dateTime('deleted')->nullable();
+            $table->dateTime('deleted')->nullable();//alapért. szernt
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            
         });
+
+         //szül év ne legyen nagyobb a mai dátumnál
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -48,8 +54,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        //check constraint eltávolítása
+        DB::statement('ALTER TABLE users DROP CONSTRAINT check_birth_year');
+    
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
     }
 };

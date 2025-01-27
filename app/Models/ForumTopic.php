@@ -19,11 +19,11 @@ class ForumTopic extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function forumComments()
     {
-        return $this->hasMany(ForumComment::class, 'forum_topic_id', 'id');
+        return $this->hasMany(ForumComment::class, 'forum_topic_id');
     }
 }

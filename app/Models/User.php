@@ -55,16 +55,16 @@ class User extends Authenticatable
 
     public function userMovies()
     {
-        return $this->hasMany(UserMovie::class, 'user_id', 'id');
+        return $this->hasMany(UserMovie::class, 'user_id');
     }
 
     public function forumTopics()
     {
-        return $this->hasMany(ForumTopic::class, 'user_id', 'id');
+        return $this->hasMany(ForumTopic::class, 'user_id');
     }
 
     public function forumComments()
     {
-        return $this->hasMany(ForumComment::class, 'user_id', 'id');
+        return $this->hasMany(ForumComment::class, 'user_id');
     } 
 }
