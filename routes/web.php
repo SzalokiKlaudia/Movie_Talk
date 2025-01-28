@@ -14,4 +14,7 @@ Route::get('/import-movies-with-trailers', [MovieImportController::class, 'impor
 
 Route::get('/update-movie-data', [MovieDataController::class, 'updateMoviesData']);
 
+Route::get('/manually-update-duration', [MovieDataController::class, 'manuallyUpdateDuration']);
+
+
 

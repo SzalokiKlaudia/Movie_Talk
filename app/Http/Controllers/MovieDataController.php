@@ -52,5 +52,35 @@ class MovieDataController extends Controller
             }
         }
     } 
+
+    public function manuallyUpdateDuration()
+{
+    $manualDurations = [ //manuálísan beálíltjuk a nullos duration time-t
+        1149395 => 110, // Movie ID => Duration
+        1137172 => 130,
+        1390590 => 90,
+        840528 => 86,
+        719346 => 100,
+        663116 => 75,
+        435511 => 85,
+    ];
+
+    foreach ($manualDurations as $movieId => $duration) {
+        // Megkeressük a filmet az ID alapján
+        $movie = Movie::where('off_movie_id', $movieId)->first();
+
+        if ($movie) {
+            // Ha megtaláljuk, frissítjük az időtartamot
+            $movie->duration_minutes = $duration;
+            $movie->save();
+
+            echo "Movie '{$movie->title}' updated with duration {$duration} minutes.\n";
+        } else {
+            echo "Movie with ID {$movieId} not found.\n";
+        }
+    }
+
+    echo "Manual updates completed.\n";
+}
 }
 
