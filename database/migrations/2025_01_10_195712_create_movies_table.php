@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('title',40); //varchar(40)
             $table->text('description');
             $table->date('release_date');
-            $table->integer('duration_minutes');
+            $table->integer('duration_minutes')->nullable();
             $table->string('image_url');
-            $table->string('trailer_url');
-            $table->string('cast_url');
+            $table->string('trailer_url')->nullable();
+            $table->string('cast_url')->nullable();
             $table->timestamps();
         });
 
