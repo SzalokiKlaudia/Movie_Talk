@@ -17,7 +17,9 @@ return new class extends Migration
         DB::statement('ALTER TABLE users ADD CONSTRAINT check_birth_year CHECK (birth_year <= ' . now()->year . ')');
 
         // Movies
-        DB::statement("ALTER TABLE movies ADD CONSTRAINT check_release_date CHECK (release_date <= " . today()->toDateString() . ")"); //check constraint a mgjelenés évre
+        //DB::statement("ALTER TABLE movies ADD CONSTRAINT check_release_date CHECK (release_date <= " . today()->toDateString() . ")"); //check constraint a mgjelenés évre
+        //DB::statement("ALTER TABLE movies ADD CONSTRAINT check_release_date CHECK (STR_TO_DATE(release_date, '%Y-%m-%d') <= CURDATE())");
+
         DB::statement("ALTER TABLE movies ADD CONSTRAINT check_duration_minutes CHECK (duration_minutes > 0)"); // ck add a hány percre
 
         // User movies
