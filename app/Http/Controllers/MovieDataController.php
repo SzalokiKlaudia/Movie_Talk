@@ -49,57 +49,8 @@ class MovieDataController extends Controller
                 }
             
              
-        }
-    }
-    }
-
-    public function updateMoviesTrailerUrls() //innen nyerjük ki a trailereket
-{
-    $api_key = 'd177b1faa31eb756e208e96f34fbeb53'; // TMDb API kulcs
-
-    // Lekérjük az összes filmet az adatbázisból, amiknek van off_movie_id
-    $movies = Movie::all();
-
-    foreach ($movies as $movie) {
-        // Az adott filmhez tartozó "videos" endpoint URL-je
-        $url = "https://api.themoviedb.org/3/movie/{$movie->off_movie_id}/videos?api_key={$api_key}";
-
-        // Lekérjük az adatokat
-        $response = Http::get($url);
-
-        if ($response->successful()) {
-            $data = $response->json();
-
-            // Keresünk "Trailer" típusú, "Official Trailer" nevű videót
-            $officialTrailer = null;
-            if (isset($data['results']) && is_array($data['results'])) {
-                foreach ($data['results'] as $video) {
-                    if (
-                        isset($video['type']) && $video['type'] === 'Trailer' && 
-                        isset($video['name']) && stripos($video['name'], 'Official Trailer') !== false &&
-                        isset($video['key']) && $video['site'] === 'YouTube'
-                    ) {
-                        // Ha megtaláltuk, eltároljuk a teljes URL-t
-                        $officialTrailer = 'https://www.youtube.com/watch?v=' . $video['key'];
-                        break; // Kilépünk, mert megtaláltuk az első megfelelőt
-                    }
-                }
             }
-
-            // Frissítjük a film trailer_url mezőjét
-            $movie->trailer_url = $officialTrailer;
-
-            // Mentsük el az adatokat
-            if ($movie->save()) {
-                echo "Trailer URL updated for '{$movie->title}'\n";
-            } else {
-                echo "Failed to update trailer URL for '{$movie->title}'\n";
-            }
-        } else {
-            echo "Failed to fetch videos for Movie ID {$movie->off_movie_id}\n";
         }
-    }
+    } 
+}
 
-    echo "Trailer URLs update process completed.\n";
-}
-}

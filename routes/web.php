@@ -10,9 +10,8 @@ Route::get('/', function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/import-movies', [MovieImportController::class, 'importMovies']);
+Route::get('/import-movies-with-trailers', [MovieImportController::class, 'importMoviesWithTrailers']);
 
 Route::get('/update-movie-data', [MovieDataController::class, 'updateMoviesData']);
 
-Route::get('/update-movie-data', [MovieDataController::class, 'updateMoviesTrailerUrls']);
 
