@@ -16,5 +16,8 @@ Route::get('/update-movie-data', [MovieDataController::class, 'updateMoviesData'
 
 Route::get('/manually-update-duration', [MovieDataController::class, 'manuallyUpdateDuration']);
 
+Route::get('/update-movie-cast-urls', [MovieDataController::class, 'updateMoviesCastUrl']);
+
+
 
 

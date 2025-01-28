@@ -82,5 +82,40 @@ class MovieDataController extends Controller
 
     echo "Manual updates completed.\n";
 }
+
+    // cast url hozzáadása
+
+    public function updateMoviesCastUrl()
+    {
+        $api_key = 'd177b1faa31eb756e208e96f34fbeb53'; // TMDb API kulcs
+
+        // Lekérjük az összes filmet az adatbázisból
+        $movies = Movie::all();
+
+        foreach ($movies as $movie) {
+            // Lekérjük az adott film cast adatlapját a TMDb API-ból
+            $url = "https://api.themoviedb.org/3/movie/{$movie->off_movie_id}/credits?api_key={$api_key}";
+
+            // Lekérjük az adatokat
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                // A TMDb link, ami a film cast oldalára mutat
+                $castUrl = "https://www.themoviedb.org/movie/{$movie->off_movie_id}/cast";
+
+                // Frissítjük a film 'cast_url' mezőjét
+                $movie->cast_url = $castUrl;
+
+                // Elmentjük a frissített adatokat
+                $movie->save();
+
+                echo "Movie '{$movie->title}' cast URL updated successfully.\n";
+            } else {
+                echo "Failed to fetch cast for movie '{$movie->title}'.\n";
+            }
+        }
+    }
 }
 
