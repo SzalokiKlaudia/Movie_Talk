@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MovieGenreImportController;
+use App\Http\Controllers\MovieKeywordImportController;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -45,4 +46,16 @@ Artisan::command('import:movie-genres', function () {
     $controller = new MovieGenreImportController();
     $controller->importMovieGenres();
     $this->info('Movie genres import finished.');
+});
+
+
+Artisan::command('import:movie-keywords', function () {
+    // Controller példányosítása
+    $controller = new MovieKeywordImportController();
+
+    // Meghívjuk az importálás metódust
+    $controller->importMovieKeywords();
+
+    // Visszajelzés a konzolon
+    $this->info('Movie keywords import finished.');
 });

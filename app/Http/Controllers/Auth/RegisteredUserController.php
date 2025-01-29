@@ -18,24 +18,35 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $validated = $request->validate([
+            'user_name' => 'required|string|max:30|unique:users,user_name',
+            'email' => 'required|email|max:50|unique:users,email',
+            'name' => 'required|string|max:30',
+            'gender' => 'required|string|max:10',
+            'birth_year' => 'required|integer',
+            'password' => 'required|string|confirmed|min:8',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
+            'password' => Hash::make($request->string('password')),// Jelszó hashelése
+            'user_name' => $validated['user_name'],
+            'email' => $validated['email'],
+            'name' => $validated['name'],
+            'gender' => $validated['gender'],
+            'birth_year' => $validated['birth_year'],
+          
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        $token = $user->createToken('auth_token')->plainTextToken;
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user
+]);
 
-        return response()->noContent();
     }
 }
