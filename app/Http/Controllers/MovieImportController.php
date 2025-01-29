@@ -11,7 +11,8 @@ class MovieImportController extends Controller
 {
     public function importMoviesWithTrailers()
     {
-        $api_key = 'd177b1faa31eb756e208e96f34fbeb53'; // API kulcs
+        $api_key = env('TMDB_API_KEY');
+                 // API kulcs
         $base_url = 'https://api.themoviedb.org/3/discover/movie';
 
         // Az oldalakat végigjárjuk 7 oldalon keresztül
