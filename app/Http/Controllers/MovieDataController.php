@@ -59,11 +59,10 @@ class MovieDataController extends Controller
     $manualDurations = [ //manuálísan beálíltjuk a nullos duration time-t
         1149395 => 110, // Movie ID => Duration
         1137172 => 130,
-        1390590 => 90,
         840528 => 86,
-        719346 => 100,
+        346448 => 110,
         663116 => 75,
-        435511 => 85,
+    
     ];
 
     foreach ($manualDurations as $movieId => $duration) {

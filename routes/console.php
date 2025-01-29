@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MovieGenreImportController;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -38,4 +39,10 @@ Artisan::command('update:movies-genres', function () {
 Artisan::command('update:movie-keywords', function () {
     app()->call('App\Http\Controllers\KeywordDataController@updateMovieKeywords');
     $this->info('Kulcsszavak frissítése kész!');
+});
+
+Artisan::command('import:movie-genres', function () {
+    $controller = new MovieGenreImportController();
+    $controller->importMovieGenres();
+    $this->info('Movie genres import finished.');
 });
