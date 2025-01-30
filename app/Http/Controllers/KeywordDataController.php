@@ -25,7 +25,7 @@ class KeywordDataController extends Controller
             if ($response->successful()) {
                 $data = $response->json();
 
-                // Kiírjuk a válasz adatstruktúráját debug céljából
+                // Kiírjuk
                 echo "Data for Movie ID {$movie->off_movie_id}:\n";
                 print_r($data);
 
@@ -35,17 +35,17 @@ class KeywordDataController extends Controller
                         // Megkeressük a kulcsszót az adatbázisból
                         $existingKeyword = Keyword::where('name', $keyword['name'])->first();
 
-                        // Ha nem találjuk a kulcsszót, akkor hozzáadjuk
+                        // Ha nincs ilyen, akkor hozzáadjuk
                         if (!$existingKeyword) {
                             Keyword::create(['name' => $keyword['name']]);
                             echo "Added keyword '{$keyword['name']}' to the keywords table.\n";
                         }
                     }
                 } else {
-                    echo "No keywords found for movie '{$movie->title}'.\n";
+                    echo "No keywords found for movie '{$movie->title}'.\n"; //ha van ignoráljuk
                 }
             } else {
-                echo "Failed to fetch keywords for movie ID {$movie->off_movie_id}.\n";
+                echo "Failed to fetch keywords for movie ID {$movie->off_movie_id}.\n";//nem sikerült lekérni az api adatot
             }
         }
     }

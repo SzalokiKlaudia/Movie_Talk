@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 
 class MovieKeywordImportController extends Controller
 {
-    public function importMovieKeywords()
+    public function importMovieKeywords() //kulcsszavak lekérése feltöltése táblába
     {
         // Lekérjük az összes filmet az adatbázisból
         $movies = Movie::all();
@@ -39,11 +39,11 @@ class MovieKeywordImportController extends Controller
                     foreach ($keywordsData as $keywordData) {
                         $keywordName = $keywordData['name'];
 
-                        // Ellenőrizzük, hogy a kulcsszó szerepel-e a `keywords` táblában
+                        // Ellenőrizzük, hogy a kulcsszó szerepel-e a keywords táblában
                         $keyword = Keyword::where('name', $keywordName)->first();
 
                         if ($keyword) {
-                            // Ha a kulcsszó létezik, hozzárendeljük a filmhez a `movie_keywords` táblában
+                            // Ha a kulcsszó létezik, hozzárendeljük a filmhez a movie_keywords táblában
                             MovieKeyword::insert([
                                 'movie_id' => $movie->id,
                                 'keyword_id' => $keyword->id,
@@ -56,10 +56,11 @@ class MovieKeywordImportController extends Controller
                             echo "Keyword '{$keywordName}' does not exist in the keywords table.\n";
                         }
                     }
-                } else {
+                } else { //ha nincs a response-ban keywords
                     echo "No keywords found for movie: {$movie->title}\n";
                 }
-            } else {
+
+            } else { //ha nem sikerült a fetchelés
                 echo "Failed to fetch keywords for movie: {$movie->title}\n";
             }
         }

@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Http;
 
 class MovieImportController extends Controller
 {
-    public function importMoviesWithTrailers()
+    public function importMoviesWithTrailers()// move tábla feltöltése, cím, leírás, megjelenés éve, poszter kép, a többi más útvnalon
     {
         $api_key = env('TMDB_API_KEY');
                  // API kulcs
-        $base_url = 'https://api.themoviedb.org/3/discover/movie';
+        $base_url = 'https://api.themoviedb.org/3/discover/movie'; //ez az alap
 
         // Az oldalakat végigjárjuk 7 oldalon keresztül
+        //hozzáadjuk a leszűrt preferenciák szerint a filmeket
         for ($page = 1; $page <= 7; $page++) {
             $url = $base_url . "?api_key=$api_key&with_original_language=ko&adult=false&certification_country=US&certification.lte=PG-13&page=$page";
 
@@ -57,7 +58,7 @@ class MovieImportController extends Controller
                     $movieModel->title = $movie['title'];
                     $movieModel->description = $movie['overview'];
                     $movieModel->release_date = $releaseDate; // Csak ha érvényes dátum van, stringként tároljuk
-                    $movieModel->duration_minutes = isset($movie['runtime']) ? $movie['runtime'] : null;
+                    $movieModel->duration_minutes = isset($movie['runtime']) ? $movie['runtime'] : null; //ez null lesz
                     $movieModel->image_url = isset($movie['poster_path']) ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : null;
                     $movieModel->trailer_url = $trailerUrl; // A valid trailer URL
                     $movieModel->cast_url = null; // Ha nincs cast_url, null
@@ -68,7 +69,7 @@ class MovieImportController extends Controller
 
                 echo "Page $page movies processed successfully.\n";
             } else {
-                echo "Error fetching page $page.\n";
+                echo "Error fetching page $page.\n"; //ha nincs response adat
             }
         }
     }
@@ -76,7 +77,8 @@ class MovieImportController extends Controller
     // Filmeknél trailer URL lekérése
     private function getTrailerUrlForMovie($movieId)
     {
-        $api_key = 'd177b1faa31eb756e208e96f34fbeb53'; // API kulcs
+        $api_key = env('TMDB_API_KEY');
+        // API kulcs
         $url = "https://api.themoviedb.org/3/movie/{$movieId}/videos?api_key={$api_key}";
     
         // Lekérjük a válasz adatokat
@@ -86,12 +88,12 @@ class MovieImportController extends Controller
             $data = $response->json();
             $trailers = $data['results'] ?? [];
     
-            // Megkeressük az első "Trailer" típusú videót, amelyik YouTube-on található
+            // Megkeressük az első trailer típusú videót,és youtubeon elérhető-e
             $officialTrailer = collect($trailers)->first(function ($trailer) {
                 return $trailer['type'] === 'Trailer' && strtolower($trailer['site']) === 'youtube';
             });
     
-            if ($officialTrailer) {
+            if ($officialTrailer) { //ha van térjünk vele vissza, mmint a youtube linkjéel h eltárolhassuk a filmekkel együtt
                 return "https://www.youtube.com/watch?v={$officialTrailer['key']}";
             }
         }

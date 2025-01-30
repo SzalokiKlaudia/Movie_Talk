@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 
 class MovieGenreImportController extends Controller
 {
-    public function importMovieGenres()
+    public function importMovieGenres() //feltöltjük a movie genre táblát
     {
         // TMDB API URL műfajok lekéréséhez
         $apiUrl = 'https://api.themoviedb.org/3/movie/';
@@ -32,19 +32,18 @@ class MovieGenreImportController extends Controller
             if ($response->successful()) {
                 $movieData = $response->json();
                 echo "API response is ok: {$movie->title}\n";
-                echo "Genres: : {$movie->title}\n";
                 print_r($movieData['genres']);  // Kiírjuk a filmhez tartozó műfajokat
     
                 // Műfajok feldolgozása
                 foreach ($movieData['genres'] as $genreData) {
                     // Műfaj neve
                     $genreName = $genreData['name'];
-                    echo "Genre: {$genreName}\n"; // Logoljunk ki minden műfajt, amit ellenőrzünk.
+                    echo "Genre: {$genreName}\n"; // múfaj kiiratás
     
                     // Ellenőrizzük, hogy a műfaj szerepel-e az adatbázisban
                     $genre = Genre::where('name', $genreName)->first();
     
-                    if ($genre) {
+                    if ($genre) { //ha igen
                         echo "Genre is valid {$genreName}\n";
                         try {
                             // Ha megtaláltuk a műfajt, adjuk hozzá a movie_genre táblához
@@ -56,15 +55,15 @@ class MovieGenreImportController extends Controller
                             ]);
                             echo "Added to the movie_genre table {$movie->id}, Műfaj ID: {$genre->id}\n";
                         } catch (\Exception $e) {
-                            echo "Something went wrong.. " . $e->getMessage() . "\n";
+                            echo "Something went wrong.. " . $e->getMessage() . "\n"; //kapjuk el a hibát
                         }
                     } else {
-                        echo "The genre is not in the genre table: {$genreName}\n";
+                        echo "The genre is not in the genre table: {$genreName}\n";//ha nem szerepel ab-ban
                     }
                 }
             } else {
                 // Ha nem sikerült lekérni a műfajokat a filmhez
-                echo "Could not find the genre: {$movie->title}\n";
+            echo "Could not find the genre: {$movie->title}\n"; //api kérés nem volt sikeres
             }
         }
     

@@ -20,17 +20,17 @@ class MovieDataController extends Controller
             // Lekérjük az adott film részletes adatait a TMDb API-ból
             $url = "https://api.themoviedb.org/3/movie/{$movie->off_movie_id}?api_key={$api_key}";
 
-            // Lekérjük az adatokat
-            $response = Http::get($url);
+           
+            $response = Http::get($url);  // Lekérést változóba tároljuk
 
-            if ($response->successful()) {
-                $data = $response->json();
+            if ($response->successful()) { //ha van response
+                $data = $response->json(); //jsonba tároljuk
             
-                // Kiírjuk a válasz adatstruktúráját debug céljából
-                echo "Data for Movie ID {$movie->off_movie_id}:\n";
+                
+                echo "Data for Movie ID {$movie->off_movie_id}:\n"; //ellenőrizzük mi jött vissza
                 print_r($data);
             
-                // Ellenőrizzük a 'runtime' mezőt
+                // Ellenőrizzük a 'runtime' mezőt, és h van
                 if (isset($data['runtime']) && $data['runtime'] !== null) {
                     // Frissítjük a film hossza adatot
                     $movie->duration_minutes = (int) $data['runtime']; // Cast-oljuk egész számra, ha nem az
@@ -54,34 +54,34 @@ class MovieDataController extends Controller
         }
     } 
 
-    public function manuallyUpdateDuration()
-{
-    $manualDurations = [ //manuálísan beálíltjuk a nullos duration time-t
-        1149395 => 110, // Movie ID => Duration
-        1137172 => 130,
-        840528 => 86,
-        346448 => 110,
-        663116 => 75,
-    
-    ];
+        public function manuallyUpdateDuration() //muszáj volt manuálisan beállítani a megmaradt null értéket
+    {
+        $manualDurations = [ //manuálísan beálíltjuk a nullos duration time-t
+            1149395 => 110, // Movie ID => Duration
+            1137172 => 130,
+            840528 => 86,
+            346448 => 110,
+            663116 => 75,
+        
+        ];
 
-    foreach ($manualDurations as $movieId => $duration) {
-        // Megkeressük a filmet az ID alapján
-        $movie = Movie::where('off_movie_id', $movieId)->first();
+        foreach ($manualDurations as $movieId => $duration) {
+            // Megkeressük a filmet az ID alapján
+            $movie = Movie::where('off_movie_id', $movieId)->first();
 
-        if ($movie) {
-            // Ha megtaláljuk, frissítjük az időtartamot
-            $movie->duration_minutes = $duration;
-            $movie->save();
+            if ($movie) {
+                // Ha megtaláljuk, frissítjük az időtartamot
+                $movie->duration_minutes = $duration;
+                $movie->save();
 
-            echo "Movie '{$movie->title}' updated with duration {$duration} minutes.\n";
-        } else {
-            echo "Movie with ID {$movieId} not found.\n";
+                echo "Movie '{$movie->title}' updated with duration {$duration} minutes.\n";
+            } else {
+                echo "Movie with ID {$movieId} not found.\n";
+            }
         }
-    }
 
-    echo "Manual updates completed.\n";
-}
+        echo "Manual updates completed.\n";
+    }
 
     // cast url hozzáadása
 
@@ -93,15 +93,7 @@ class MovieDataController extends Controller
         // Lekérjük az összes filmet az adatbázisból
         $movies = Movie::all();
 
-        foreach ($movies as $movie) {
-            // Lekérjük az adott film cast adatlapját a TMDb API-ból
-            $url = "https://api.themoviedb.org/3/movie/{$movie->off_movie_id}/credits?api_key={$api_key}";
-
-            // Lekérjük az adatokat
-            $response = Http::get($url);
-
-            if ($response->successful()) {
-                $data = $response->json();
+            foreach ($movies as $movie) {
 
                 // A TMDb link, ami a film cast oldalára mutat
                 $castUrl = "https://www.themoviedb.org/movie/{$movie->off_movie_id}/cast";
@@ -109,14 +101,12 @@ class MovieDataController extends Controller
                 // Frissítjük a film 'cast_url' mezőjét
                 $movie->cast_url = $castUrl;
 
-                // Elmentjük a frissített adatokat
+                // Elmentjük a frissített adatokat egyenként
                 $movie->save();
 
                 echo "Movie '{$movie->title}' cast URL updated successfully.\n";
-            } else {
-                echo "Failed to fetch cast for movie '{$movie->title}'.\n";
-            }
-        }
+            } 
+        
     }
 }
 
