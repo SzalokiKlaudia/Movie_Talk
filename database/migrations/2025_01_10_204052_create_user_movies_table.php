@@ -16,15 +16,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('movie_id'); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
-            $table->tinyInteger('rating')->nullable();
-            $table->date('insert_date');
+            $table->tinyInteger('rating')->nullable()->default(null);
+            $table->date('watching_date');
             $table->timestamps();
 
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('movie_id')->references('id')->on('movies');
 
-            $table->unique(['user_id', 'movie_id','insert_date']); // Egy felhasználó csak egyszer értékelhet egy filmet
+            $table->unique(['user_id', 'movie_id','watching_date']); 
         });
         
 

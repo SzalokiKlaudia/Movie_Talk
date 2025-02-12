@@ -12,40 +12,81 @@ class MovieController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-     public function getPopularMoviesTmdb(){
-
-        $apiKey = env('TMDB_API_KEY');
-        $baseUrl = "https://image.tmdb.org/t/p/w500/";
-
-        $apiUrl = "https://api.themoviedb.org/3/discover/movie?api_key={$apiKey}&with_original_language=ko&primary_release_year=2025&sort_by=popularity.desc&page=1";
-
-        $allMovie = [];
-
-            $response = Http::get($apiUrl); //lekérjük
-
-            if($response->successful()) {
-                $movies = $response->json()['results'];
-                $allMovies = array_merge($allMovie, $movies); // itt adjuk hozzá az üres tömbhöz a filmek választ
+        //népszerű filmek lekérése a tmdb-ből
+        public function getPopularMoviesTmdb() { 
+            // TMDB API kulcs és alap URL a képekhez
+            $apiKey = env('TMDB_API_KEY');
+            $baseUrl = "https://image.tmdb.org/t/p/w500/";
+        
+            // API URL (2025-ös koreai filmek népszerűség szerint)
+            $apiUrl = "https://api.themoviedb.org/3/discover/movie?api_key={$apiKey}&with_original_language=ko&primary_release_year=2025&sort_by=popularity.desc&page=1";
+        
+            // API lekérés
+            $response = Http::get($apiUrl);
+        
+            // Ellenőrizzük, hogy sikeres volt-e a kérés
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Failed to fetch movies'], 500);
             }
+        
+            $movies = $response->json()['results'] ?? [];
+        
+            // Népszerűség szerint csökkenő sorrendbe rakjuk
+            usort($movies, function($a, $b) {
+                return $b['popularity'] <=> $a['popularity'];
+            });
+        
+            // Kiválasztjuk az első 5 filmet
+            $popularMovies = array_slice($movies, 0, 5);
+        
+            // Csak az ID-t, címet és posztert mentjük el
+            $formattedMovies = array_map(function ($movie) use ($baseUrl) {
+                return [
+                    'id' => $movie['id'],
+                    'title' => $movie['title'],
+                    'poster_path' => $baseUrl . $movie['poster_path'], // Teljes poszter URL
+                    'release_date' => $movie['release_date'],
+                ];
+            }, $popularMovies);
+        
+            // JSON válasz visszaadása
+            return response()->json($formattedMovies);
+        }
+
 
     
 
-        //népszerűség szerint redezzük
-        usort($allMovies, function($a, $b) { //összehasonlító fgv
-            return $b['popularity'] <=> $a['popularity']; //csökkenő sorrendben népszerűség szerint rendezve <=> z jelzi
-        });
+     public function moviesByTitle($title){  //miylen xy című filmek vannak?
 
-        //kiválasztjuk az első 5-öt
-        $popularMovies = array_slice($allMovies, 0, 5);
+        $movieTitles = Movie::where('title','like','%'. $title . '%')->get(['title']);
 
-        $posters = array_map(function ($movie)use ($baseUrl) { // végig map-elünk rajtuk, és kinyerjük a poster img-t
-            return $baseUrl . $movie['poster_path'];
-        }, $popularMovies);
-
-        return response()->json($posters); //visszatérünk az első 5 képpel
+        // Visszaküldjük a filmek címeit JSON formátumban
+        return response()->json($movieTitles);
 
      }
+
+     
+     public function getMovieByTitle($title){  //mi az xy című film adatai?
+
+        $movies = Movie::where('title','like','%'. $title . '%')->get();
+
+        if ($movies->isEmpty()) {
+            return response()->json(['message' => 'Film not found'], 404);
+        }
+    
+        // Visszaküldjük a filmek adatait JSON formátumban
+        return response()->json($movies);
+
+     }
+
+     //milyen xy filmek vannak adott kulcsszavak szerint?
+     public function getMovieByKeyword($keyword){
+
+        $movie = Movie::where()->get();
+
+
+     }
+    
 
 
     public function index() //összes film lekérdezése

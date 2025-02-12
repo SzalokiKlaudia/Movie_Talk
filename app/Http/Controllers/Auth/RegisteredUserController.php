@@ -41,12 +41,18 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        //Auth::login($user);//tesztesetekhez
+
+
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
-]);
+        ]);
+
+        //return response()->noContent();//tesztesetekhez
+
 
     }
 }

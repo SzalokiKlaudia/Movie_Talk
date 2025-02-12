@@ -16,7 +16,8 @@ class UserMovie extends Model
         'user_id',
         'movie_id',
         'rating',
-        'insert_date'
+        'watched_date',
+        'planning_date',
       
     ];
 
