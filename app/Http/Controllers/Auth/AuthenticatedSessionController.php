@@ -13,9 +13,19 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request)
+    public function store(LoginRequest $request): Response
+    {  
+        // Az autentikáció validálása a LoginRequest alapján
+        $request->authenticate(); // Meghívja a LoginRequest-ben lévő hitelesítést
+
+        $request->session()->regenerate(); // Session fixation elleni védelem
+    
+        return response()->noContent(); // 204 válasz (sikeres, de nincs adat)
+    }
+
+    public function storeBearer(LoginRequest $request)
     {
-        /*$request->validate([
+        $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
@@ -30,24 +40,7 @@ class AuthenticatedSessionController extends Controller
             'token_type' => 'Bearer',
             'user' => $user,
             'status' => 'Login successful',
-        ]);*/
-
-        //return response()->noContent();//tesztesetekhez
-
-
-        // Az autentikáció validálása a LoginRequest alapján
-        $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
         ]);
-
-        // Megpróbáljuk az autentikációt az email és a jelszó alapján
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid login credentials'], 401);
-        }
-        
-        // visszaküldünk egy válasz üzenetet vagy státuszt
-        return response()->noContent();
     }
 
     /**
@@ -58,6 +51,11 @@ class AuthenticatedSessionController extends Controller
         /*$request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Logout successful']);*/
         
+       // Kijelentkezés után egy üzenet visszaküldése
+        //return response()->json(['message' => 'Logout successful']);
+        
+
+        
        // A felhasználó kijelentkeztetése
        Auth::guard('web')->logout();
 
@@ -67,8 +65,6 @@ class AuthenticatedSessionController extends Controller
        return response()->noContent();
 
 
-       // Kijelentkezés után egy üzenet visszaküldése
-       //return response()->json(['message' => 'Logout successful']);
    }
 }
 

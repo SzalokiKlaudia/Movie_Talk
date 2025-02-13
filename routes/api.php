@@ -12,14 +12,16 @@ use Illuminate\Support\Facades\Route;
 //Route::middleware('web')->group(base_path('routes/auth.php'));
 
 //bárki által elérhető
-Route::post('/register',[RegisteredUserController::class, 'store']);
-Route::post('/login',[AuthenticatedSessionController::class, 'store']);
+//Route::post('/register',[RegisteredUserController::class, 'store']);
+//Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);
+
+
 //Kijelentkezési útvonal minden bejelentkezett felhasználónak
-Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+//Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
 Route::get('/users',[UserController::class, 'index']);//próba
 
-Route::get('/popular-movies', [MovieController::class, 'getPopularMoviesTmdb']);//népszerűség szerint rendezve az első 5 premier film a kezdőoldalon!
+Route::get('/premier-movies', [MovieController::class, 'getPremierMoviesTmdb']);//népszerűség szerint rendezve az első 5 premier film a kezdőoldalon!
 Route::get('/movies',[MovieController::class, 'index']);
 //miylen xy című filmek vannak
 Route::get('/movies/titles/{title}', [MovieController::class, 'moviesByTitle']);
@@ -27,10 +29,6 @@ Route::get('/movies/titles/{title}', [MovieController::class, 'moviesByTitle']);
 Route::get('/movie/title/{title}', [MovieController::class, 'getMovieByTitle']);
 
 Route::get('/movie/top-users/', [UserController::class, 'topActiveUsers']);//top 5 tag
-
-
-
-
 
 
 
@@ -51,8 +49,6 @@ Route::middleware(['auth:sanctum'])
 Route::middleware(['auth:sanctum', Admin::class])
 ->group(function () {
     Route::get('/admin/users', [AdminController::class, 'index']);//admin látja a felhazsnálók adatait
-    
-  
-  
 });
 
+//Route::post('/login',[AuthenticatedSessionController::class, 'store']);

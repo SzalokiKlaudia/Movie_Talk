@@ -13,12 +13,16 @@ class MovieController extends Controller
      * Display a listing of the resource.
      */
         //népszerű filmek lekérése a tmdb-ből
-        public function getPopularMoviesTmdb() { 
-            // TMDB API kulcs és alap URL a képekhez
-            $apiKey = env('TMDB_API_KEY');
-            $baseUrl = "https://image.tmdb.org/t/p/w500/";
+        public function getPremierMoviesTmdb() {
+            // TMDB API kulcs 
+            $apiKey = env('TMDB_API_KEY', 'd177b1faa31eb756e208e96f34fbeb53');
+            $baseUrl = "https://image.tmdb.org/t/p/w500/";//alap URL a képekhez!!
         
-            // API URL (2025-ös koreai filmek népszerűség szerint)
+            if (!$apiKey) {// ha ninc skulcsunk
+                return response()->json(['error' => 'TMDB API key is missing'], 500);
+            }
+        
+            // API URL
             $apiUrl = "https://api.themoviedb.org/3/discover/movie?api_key={$apiKey}&with_original_language=ko&primary_release_year=2025&sort_by=popularity.desc&page=1";
         
             // API lekérés
@@ -26,28 +30,38 @@ class MovieController extends Controller
         
             // Ellenőrizzük, hogy sikeres volt-e a kérés
             if (!$response->successful()) {
-                return response()->json(['error' => 'Failed to fetch movies'], 500);
+                return response()->json(['error' => 'Failed to fetch movies from TMDB API'], 500);
             }
         
-            $movies = $response->json()['results'] ?? [];
+            // Ellenőrizzük, hogy a válasz tartalmazza a kívánt adatokat
+            $movies = $response->json()['results'] ?? null;
+            if (empty($movies)) {
+                return response()->json(['error' => 'No movies found'], 404);
+            }
         
-            // Népszerűség szerint csökkenő sorrendbe rakjuk
-            usort($movies, function($a, $b) {
-                return $b['popularity'] <=> $a['popularity'];
+            // Kiválasztjuk azokat a filmeket, amelyek kiadási dátuma nagyobb mint a mai dátum
+            $today = now()->toDateString(); // Mai dátum
+            $futureMovies = array_filter($movies, function($movie) use ($today) {
+                return isset($movie['release_date']) && $movie['release_date'] > $today;
             });
         
-            // Kiválasztjuk az első 5 filmet
-            $popularMovies = array_slice($movies, 0, 5);
+            // Kiválasztjuk az első 5 filmet a jövőbeni kiadási dátumok alapján, és rendezzük őket csökkenő sorrendben
+            usort($futureMovies, function($a, $b) {
+                return $b['release_date'] <=> $a['release_date'];
+            });
+        
+            // Csak az első 5 filmet tartjuk meg
+            $futureMovies = array_slice($futureMovies, 0, 5);
         
             // Csak az ID-t, címet és posztert mentjük el
             $formattedMovies = array_map(function ($movie) use ($baseUrl) {
                 return [
                     'id' => $movie['id'],
                     'title' => $movie['title'],
-                    'poster_path' => $baseUrl . $movie['poster_path'], // Teljes poszter URL
-                    'release_date' => $movie['release_date'],
+                    'poster_path' => isset($movie['poster_path']) ? $baseUrl . $movie['poster_path'] : null, // Ellenőrizzük, hogy van poszter
+                    'release_date' => $movie['release_date'], 
                 ];
-            }, $popularMovies);
+            }, $futureMovies);
         
             // JSON válasz visszaadása
             return response()->json($formattedMovies);
