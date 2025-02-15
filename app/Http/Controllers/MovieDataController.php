@@ -10,7 +10,7 @@ class MovieDataController extends Controller
 {
     public function updateMoviesData() //itt updateljük a duration timest
     {
-        $api_key = env('TMDB_API_KEY');
+        $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
         // TMDb API kulcs
 
         // Lekérjük az összes filmet az adatbázisból, amiknek van movie_id
@@ -87,7 +87,7 @@ class MovieDataController extends Controller
 
     public function updateMoviesCastUrl()
     {
-        $api_key = env('TMDB_API_KEY');
+        $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
              // TMDb API kulcs
 
         // Lekérjük az összes filmet az adatbázisból

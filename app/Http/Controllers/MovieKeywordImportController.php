@@ -21,7 +21,7 @@ class MovieKeywordImportController extends Controller
 
             // TMDB API URL a kulcsszavak lekéréséhez
             $apiUrl = "https://api.themoviedb.org/3/movie/{$movie->off_movie_id}/keywords";
-            $apiKey = env('TMDB_API_KEY');
+            $apiKey = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
 
             // API kérés a kulcsszavak lekéréséhez
             $response = Http::get($apiUrl, [

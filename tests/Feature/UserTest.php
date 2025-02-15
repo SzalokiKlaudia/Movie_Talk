@@ -19,11 +19,27 @@ class UserTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_user(): void
+    public function test_user(): void // ő nem működik az autentikáció miatt
     {
          
-        $response = $this->withoutMiddleware()->get('/api/users');
+        $response = $this->withoutMiddleware()->get('/api/user');
 
         $response->assertStatus(200);
     }
+
+    public function test_premiers(): void //ez átment
+    {
+        $response = $this->get('/api/premier-movies');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_movies(): void //ez átment
+    {
+        $response = $this->get('/api/movies');
+
+        $response->assertStatus(200);
+    }
+
+    
 }

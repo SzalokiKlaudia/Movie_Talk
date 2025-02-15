@@ -70,7 +70,7 @@ class MovieController extends Controller
 
     
 
-     public function moviesByTitle($title){  //miylen xy című filmek vannak?
+     public function moviesByTitle($title){  //miylen xy című filmek vannak ez nem biztos h használom, t eljárás kellene
 
         $movieTitles = Movie::where('title','like','%'. $title . '%')->get(['title']);
 
@@ -80,7 +80,7 @@ class MovieController extends Controller
      }
 
      
-     public function getMovieByTitle($title){  //mi az xy című film adatai?
+     public function getMovieByTitle($title){  //mi az xy című film adatatok, ezt sem biztos h használom, erre is tárolt eljárás kellene
 
         $movies = Movie::where('title','like','%'. $title . '%')->get();
 

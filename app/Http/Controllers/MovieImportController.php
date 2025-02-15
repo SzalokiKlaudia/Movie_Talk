@@ -11,7 +11,7 @@ class MovieImportController extends Controller
 {
     public function importMoviesWithTrailers()// move tábla feltöltése, cím, leírás, megjelenés éve, poszter kép, a többi más útvnalon
     {
-        $api_key = env('TMDB_API_KEY');
+        $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
                  // API kulcs
         $base_url = 'https://api.themoviedb.org/3/discover/movie'; //ez az alap
 
@@ -36,7 +36,7 @@ class MovieImportController extends Controller
                     // A release_date stringet Carbon objektummá alakítjuk
                     $releaseDate = Carbon::parse($movie['release_date'])->format('Y-m-d');
 
-                    // Ellenőrizzük, hogy az off_movie_id már létezik-e az adatbázisban
+                    // Ellenőrizzük, hogy az off_movie_id már létezik-e az adatbázisban, mert a tmdb-ben vannak ismétlődő adatok
                     $existingMovie = Movie::where('off_movie_id', $movie['id'])->first();
                     if ($existingMovie) {
                         echo "Movie '{$movie['title']}' already exists, skipping.\n";
@@ -58,10 +58,10 @@ class MovieImportController extends Controller
                     $movieModel->title = $movie['title'];
                     $movieModel->description = $movie['overview'];
                     $movieModel->release_date = $releaseDate; // Csak ha érvényes dátum van, stringként tároljuk
-                    $movieModel->duration_minutes = isset($movie['runtime']) ? $movie['runtime'] : null; //ez null lesz
-                    $movieModel->image_url = isset($movie['poster_path']) ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : null;
+                    $movieModel->duration_minutes = isset($movie['runtime']) ? $movie['runtime'] : null; //ez null lesz, mert nincs alapértelmezetten, ezt máshol kérdezzük le
+                    $movieModel->image_url = isset($movie['poster_path']) ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : null;// őt is más útvonalon kérdezzük le
                     $movieModel->trailer_url = $trailerUrl; // A valid trailer URL
-                    $movieModel->cast_url = null; // Ha nincs cast_url, null
+                    $movieModel->cast_url = null; // ezt más útvonalon tudjuk lekérdezni
                     $movieModel->save();
 
                     echo "Movie '{$movie['title']}' imported successfully with trailer.\n";
@@ -74,10 +74,10 @@ class MovieImportController extends Controller
         }
     }
 
-    // Filmeknél trailer URL lekérése
+    // Filmeknél trailer URL lekérése, itt több videó adat van a filmről, kiválasztjuk a legrelevánsabbat
     private function getTrailerUrlForMovie($movieId)
     {
-        $api_key = env('TMDB_API_KEY');
+        $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
         // API kulcs
         $url = "https://api.themoviedb.org/3/movie/{$movieId}/videos?api_key={$api_key}";
     

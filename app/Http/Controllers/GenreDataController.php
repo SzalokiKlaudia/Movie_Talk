@@ -11,7 +11,7 @@ class GenreDataController extends Controller
 {
         public function updateMoviesGenre()
     {
-        $api_key = env('TMDB_API_KEY');
+        $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
             // API kulcs
 
       

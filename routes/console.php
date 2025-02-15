@@ -17,6 +17,7 @@ Artisan::command('import:movies-with-trailers', function () {
     $this->info('Filmek importálása előzetesekkel kész!');
 });
 
+
 Artisan::command('update:movie-data', function () {
     app()->call('App\Http\Controllers\MovieDataController@updateMoviesData');
     $this->info('Filmadatok frissítése kész!');

@@ -15,7 +15,7 @@ class MovieGenreImportController extends Controller
     {
         // TMDB API URL műfajok lekéréséhez
         $apiUrl = 'https://api.themoviedb.org/3/movie/';
-        $apiKey = env('TMDB_API_KEY'); // API kulcs
+        $apiKey = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53'); // API kulcs
     
         // Lekérjük az összes filmet a Movie táblából
         $movies = Movie::all();
