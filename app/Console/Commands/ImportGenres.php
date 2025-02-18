@@ -1,21 +1,38 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Console\Commands;
 
 use App\Models\Genre;
 use App\Models\Movie;
-use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-class GenreDataController extends Controller
+class ImportGenres extends Command
 {
-        public function updateMoviesGenre()
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'import:genres';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Import genre datas';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
     {
         $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
-            // API kulcs
+        // API kulcs
 
-      
-        $movies = Movie::all();  // Lekérjük az összes filmet az adatbázisból
+  
+        $movies = Movie::all();  // lekérjük az összes filmet az adatbázisból
 
         foreach ($movies as $movie) { //végigmegyünk auz ab összes filmjén id szerint
             // Lekérjük az adott film részletes adatait a TMDb API-ból
@@ -25,7 +42,6 @@ class GenreDataController extends Controller
             if ($response->successful()) {
                 $data = $response->json();//elmentjük json-ba ha van válaszunk
 
-                // Kiírjuk ellenőrzésképp
                 echo "Data for Movie ID {$movie->off_movie_id}:\n";
                 print_r($data);
 
@@ -33,13 +49,11 @@ class GenreDataController extends Controller
                 if (isset($data['genres']) && count($data['genres']) > 0) {
                     foreach ($data['genres'] as $genre) { //végigmegyünk az összes response adaton
                         try {
-                            // Megpróbáljuk beszúrni a műfajt, ha már létezik, akkor duplikált hibát kapunk
-                            Genre::create([
+                            Genre::create([ // ha nincs hozzáadjuk
                                 'name' => $genre['name'],
                             ]);
                             echo "Added new genre: {$genre['name']}\n";
-                        } catch (\Illuminate\Database\QueryException $e) {
-                            // Ha már létezik, akkor az adatbázis nem engedi felvinni a name uniqe érték miatt
+                        } catch (\Exception $e) { // ha van hibát dobunk
                             echo "Genre '{$genre['name']}' already exists.\n";
                         }
                     }
@@ -48,5 +62,6 @@ class GenreDataController extends Controller
                 }
             }
         }
+
     }
 }

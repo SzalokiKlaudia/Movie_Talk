@@ -1,20 +1,35 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Console\Commands;
 
 use App\Models\Keyword;
 use App\Models\Movie;
-use Illuminate\Http\Request;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-class KeywordDataController extends Controller
+class ImportKeywords extends Command
 {
-        public function updateMovieKeywords()
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:import-keywords';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
     {
         $api_key = env('TMDB_API_KEY','d177b1faa31eb756e208e96f34fbeb53');
-        // API kulcs
 
-        // Lekérjük az összes filmet az adatbázisból
         $movies = Movie::all();
 
         foreach ($movies as $movie) {
@@ -31,18 +46,19 @@ class KeywordDataController extends Controller
 
                 // Ha vannak kulcsszavak, akkor végigmegyünk rajtuk
                 if (isset($data['keywords']) && count($data['keywords']) > 0) {
-                    foreach ($data['keywords'] as $keyword) {
-                        // Megkeressük a kulcsszót az adatbázisból
-                        $existingKeyword = Keyword::where('name', $keyword['name'])->first();
+                    $counter = 0; // Kulcsszavak számlálója
 
-                        // Ha nincs ilyen, akkor hozzáadjuk
-                        if (!$existingKeyword) {
-                            Keyword::create(['name' => $keyword['name']]);
-                            echo "Added keyword '{$keyword['name']}' to the keywords table.\n";
+                    foreach ($data['keywords'] as $keyword) {
+                        if ($counter >= 5) { // max 5 kulccszót táolunk filmenként
+                            break;
                         }
+
+                        Keyword::firstOrCreate(['name' => $keyword['name']]);// ha létezik az ab-ban visszaadja és nem lesz insert, ha nem beszúrja
+                        echo "Added keyword '{$keyword['name']}' to the keywords table.\n";
+                        $counter++; // növeljük a kulcsszó számlálót
                     }
                 } else {
-                    echo "No keywords found for movie '{$movie->title}'.\n"; //ha van ignoráljuk
+                    echo "No keywords found for movie '{$movie->title}'.\n"; //ha nincs kulcsszó, figyelmen kívül hagyjuk
                 }
             } else {
                 echo "Failed to fetch keywords for movie ID {$movie->off_movie_id}.\n";//nem sikerült lekérni az api adatot

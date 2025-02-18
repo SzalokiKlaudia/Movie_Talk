@@ -13,50 +13,48 @@ Artisan::command('inspire', function () {
 
 
 Artisan::command('import:movies-with-trailers', function () {
-    app()->call('App\Http\Controllers\MovieImportController@importMoviesWithTrailers');
-    $this->info('Filmek importálása előzetesekkel kész!');
+    $this->call('App\Console\Commands\ImportMoviesWithTrailers');
+    $this->info('Movie data imports are successfull');
 });
 
 
-Artisan::command('update:movie-data', function () {
-    app()->call('App\Http\Controllers\MovieDataController@updateMoviesData');
-    $this->info('Filmadatok frissítése kész!');
+Artisan::command('import:duration-times', function () {
+    $this->call('App\Console\Commands\ImportDurationtimes');
+    $this->info('Duration minutes updated succesfully');
 });
 
-Artisan::command('manually:update-duration', function () {
-    app()->call('App\Http\Controllers\MovieDataController@manuallyUpdateDuration');
-    $this->info('Filmek hosszának kézi frissítése kész!');
+
+Artisan::command('import:cast-url', function () {
+    $this->call('App\Console\Commands\ImportCastUrl');
+    $this->info('Movies casts data is updated succesfully!');
 });
 
-Artisan::command('update:movie-cast-urls', function () {
-    app()->call('App\Http\Controllers\MovieDataController@updateMoviesCastUrl');
-    $this->info('Szereplői URL-ek frissítése kész!');
+Artisan::command('import:genres', function () {
+    $this->call('App\Console\Commands\ImportGenres');
+    $this->info('Import genres succesfully!');
 });
 
-Artisan::command('update:movies-genres', function () {
-    app()->call('App\Http\Controllers\GenreDataController@updateMoviesGenre');
-    $this->info('Filmek műfaj adatai frissítve!');
+Artisan::command('import:keywords', function () {
+    $this->call('App\Console\Commands\ImportKeywords');
+    $this->info('Import keywords!');
 });
 
-Artisan::command('update:movie-keywords', function () {
-    app()->call('App\Http\Controllers\KeywordDataController@updateMovieKeywords');
-    $this->info('Kulcsszavak frissítése kész!');
-});
-
-Artisan::command('import:movie-genres', function () {
-    $controller = new MovieGenreImportController();
-    $controller->importMovieGenres();
+Artisan::command('import:movies-genres', function () {
+    $this->call('App\Console\Commands\ImportMoviesGenres');
     $this->info('Movie genres import finished.');
 });
 
 
-Artisan::command('import:movie-keywords', function () {
-    // Controller példányosítása
-    $controller = new MovieKeywordImportController();
-
-    // Meghívjuk az importálás metódust
-    $controller->importMovieKeywords();
-
-    // Visszajelzés a konzolon
+Artisan::command('import:movies-keywords', function () {
+    $this->call('App\Console\Commands\ImportMoviesKeywords');
     $this->info('Movie keywords import finished.');
 });
+
+
+// php artisan import:movies-with-trailers
+// php artisan import:duration-times
+// php artisan import:cast-url
+// php artisan import:genres
+// php artisan import:keywords
+// php artisan import:movies-genres 
+//php artisan import:movies-keywords

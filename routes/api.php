@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\PictureController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\Admin;
 use Illuminate\Http\Request;
@@ -16,9 +17,12 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);
 
 
+
 //Kijelentkezési útvonal minden bejelentkezett felhasználónak
 //Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
+Route::get('file-upload', [PictureController::class, 'index'])->name('file.upload');
+Route::post('file-upload', [PictureController::class, 'store'])->name('file.upload.store');
 Route::get('/users',[UserController::class, 'index']);//próba
 
 Route::get('/premier-movies', [MovieController::class, 'getPremierMoviesTmdb']);//népszerűség szerint rendezve az első 5 premier film a kezdőoldalon!
