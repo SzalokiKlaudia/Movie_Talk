@@ -51,6 +51,8 @@ Artisan::command('import:movies-keywords', function () {
 });
 
 
+// adatok feltöltése
+
 // php artisan import:movies-with-trailers
 // php artisan import:duration-times
 // php artisan import:cast-url
@@ -58,3 +60,5 @@ Artisan::command('import:movies-keywords', function () {
 // php artisan import:keywords
 // php artisan import:movies-genres 
 //php artisan import:movies-keywords
+
+// php artisan db:seed --class=UserSeeder

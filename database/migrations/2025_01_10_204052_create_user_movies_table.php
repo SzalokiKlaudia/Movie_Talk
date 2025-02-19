@@ -17,14 +17,13 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('movie_id'); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
             $table->tinyInteger('rating')->nullable()->default(null);
-            $table->date('watching_date');
+            $table->date('watching_date')->nullable()->default(null);
             $table->timestamps();
 
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('movie_id')->references('id')->on('movies');
 
-            $table->unique(['user_id', 'movie_id','watching_date']); 
         });
         
 
