@@ -33,6 +33,7 @@ class AuthenticatedSessionController extends Controller
                 return response()->json(['message' => 'Invalid login credentials'], 401); }
             
         $user = Auth::user();//tesztesetekhez
+        //$user->id
         $token = $user->createToken('auth_token')->plainTextToken;
         
         return response()->json([
@@ -42,6 +43,16 @@ class AuthenticatedSessionController extends Controller
             'status' => 'Login successful',
         ]);
     }
+
+    public function logout(Request $request)
+{
+    // A bejelentkezett felhasználó tokenjeinek törlése
+    $request->user()->tokens->each(function ($token) {
+        $token->delete(); // Minden generált token törlése
+    });
+
+    return response()->json(['message' => 'Successfully logged out'], 200);
+}
 
     /**
      * Destroy an authenticated session.

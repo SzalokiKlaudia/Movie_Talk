@@ -40,9 +40,11 @@ class UserController extends Controller
 
     
     public function topActiveUsers()//megszámoljuk az aktív felh-kat és abból a top 5
-    {    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', DB::raw('COUNT(user_movie.user_id) as number'))
-        ->join('users', 'users.id', '=', 'user_movie.user_id') 
-        ->whereNotNull('user_movie.rating') 
+    {    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', DB::raw('COUNT(user_movies.user_id) as number'))
+        ->join('users', 'users.id', '=', 'user_movies.user_id') 
+        ->whereNotNull('user_movies.rating') 
+        ->whereNull('users.deleted_at')  // töröltet ne számoljon
+        ->whereNull('user_movies.deleted_at')
         ->groupBy('users.id', 'users.user_name', 'users.created_at') 
         ->orderByDesc('number') 
         ->limit(5) 

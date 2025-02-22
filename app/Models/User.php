@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -77,4 +78,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(ForumComment::class, 'user_id');
     } 
+
+    protected static function booted() // itt állítjuk be a user törlését, és egyben a hozzá kapcsolód táblák rekordjait is
+    {
+        static::deleting(function ($user) {
+            $user->userMovies()->update(['deleted_at' => now()]); // beállítás a hozzá kapcsolódó táblához is, h annak a rekordjai is "törlődjenek"
+        });
+    }
+
+    protected static function boot() // itt állítjuk be a törölt userek visszaállítását, és a hozzá kapcsolódó táblák rekordjaiban is visszaáll.
+    {
+        parent::boot();
+
+        static::restored(function ($user) {
+            Log::info("User restored: " . $user->id);
+            $user->userMovies()->withTrashed()->restore(); //withtrashed biztisít h a törölt rekordok visszaállnak
+        });
+    }
 }

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserMovie extends Model
 {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'user_movies';
 
@@ -20,6 +21,7 @@ class UserMovie extends Model
         'planning_date',
       
     ];
+    protected $dates = ['deleted_at'];
 
     public function user()
     {
