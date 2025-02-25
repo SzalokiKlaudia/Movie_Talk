@@ -27,7 +27,8 @@ Route::post('/logout-bearer', [AuthenticatedSessionController::class, 'logout'])
 Route::get('/premier-movies', [MovieController::class, 'getPremierMoviesTmdb']);//népszerűség szerint rendezve az első 5 premier film a kezdőoldalon!
 Route::get('/movies',[MovieController::class, 'index']); // összes film adatát látod
 Route::post('/movie/title', [MovieController::class, 'getMovieByTitle']); // adott film adatának megjelenítése cím szerint
-Route::get('/movie/top-users/', [UserController::class, 'topActiveUsers']);//top 5 tagot kiadja
+Route::get('/movie/top-users', [UserController::class, 'topActiveUsers']);//top 5 tagot kiadja
+Route::get('/movie/top-rated-movies', [UserMovieController::class, 'getUsersTopRatedMovies']);// fh-k legmagasabban értékelt filmjei
 //felhasználók toplistája...
 
 

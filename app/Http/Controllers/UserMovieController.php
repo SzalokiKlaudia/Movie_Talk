@@ -8,6 +8,7 @@ use App\Models\UserMovie;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserMovieController extends Controller
 {
@@ -66,6 +67,25 @@ class UserMovieController extends Controller
 
         $movie->delete();
         return response()->json(['message' => 'Movie deleted successfully']);
+    }
+
+    public function getUsersTopRatedMovies()
+    {
+        $movies = DB::table('UsersMaxRatings')
+            ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
+            ->select('UsersMaxRatings.user_id', 'movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating')
+            ->whereIn('UsersMaxRatings.max_rating', function($query) {
+                $query->select(DB::raw('max(max_rating)'))
+                      ->from('UsersMaxRatings')
+                      ->groupBy('user_id');
+
+            })
+            ->inRandomOrder() // a filmek véletszerű sorrendben jelennek
+            ->distinct()
+            ->limit(5) 
+            ->get();
+
+        return response()->json($movies);
     }
 
 
