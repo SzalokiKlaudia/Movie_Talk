@@ -21,32 +21,45 @@ class MovieController extends Controller
         
         
             // API URL
-            $apiUrl = "https://api.themoviedb.org/3/discover/movie?api_key={$apiKey}&with_original_language=ko&primary_release_year=2025&sort_by=popularity.desc&page=1";
+            $apiUrl = "https://api.themoviedb.org/3/discover/movie?api_key={$apiKey}&with_original_language=ko&primary_release_year=2025&sort_by=popularity.desc";
         
-            // API lekérés
-            $response = Http::get($apiUrl);
+            // lekérjük az apiból a pages oldalak össz számát
+            $firstResponse = Http::get($apiUrl);
+
+            $data = $firstResponse->json();
+
+            $totalPages = $data['total_pages']; //kinyerjük a teljes oldalszámot
+
+            $movies = collect(); // ide gyűjtjük az összes oldalon összegyűjtött filmeket
+
+            for ($page = 1; $page <= $totalPages; $page++) {
+                $mainApiUrl =  "{$apiUrl}&page={$page}";
+                $response = Http::get($mainApiUrl);
         
-                
-            if (!$response->successful()) {
-                return response()->json(['error' => 'Failed to fetch movies from TMDB API'], 500);
+                if ($response->successful()) {
+                    $newMovies = collect($response->json()['results'] ?? [])
+                        ->filter(fn($movie) => 
+                            !empty($movie['title']) &&
+                            !empty($movie['poster_path']) &&
+                            !empty($movie['release_date']) &&
+                            $movie['release_date'] > now()->toDateString()
+                        );
+        
+                    $movies = $movies->merge($newMovies); // mergelni kell az összes oldalról megkapott film adatokat
+                }
             }
+        
 
-            $movies = collect($response->json()['results'] ?? []);
 
-            $filteredMovies = $movies->filter(function ($movie) {
-                    return !empty($movie['title']) 
-                        && !empty($movie['poster_path']) 
-                        && !empty($movie['release_date'])
-                        && $movie['release_date'] > now()->toDateString();
-                })
-                ->sortByDesc('release_date')
-                ->take(5)
-                ->map(fn($movie) => [
-                    'id' => $movie['id'],
-                    'title' => $movie['title'],
-                    'poster_path' => "https://image.tmdb.org/t/p/w500/" . $movie['poster_path'],
-                    'release_date' => $movie['release_date'],
-                ])
+            $filteredMovies = $movies // ezt tovább kell rendezni
+            ->sortBy('release_date') 
+            ->take(5) 
+            ->map(fn($movie) => [ // azért van szükség  mert midnen filmhez egy tömböt rendel és a képeket képként tudom megjeleníteni, egy összefűzéssel
+                'id' => $movie['id'],
+                'title' => $movie['title'],
+                'poster_path' => $baseUrl . $movie['poster_path'],
+                'release_date' => $movie['release_date'],
+            ])
                 ->values();
 
             return response()->json($filteredMovies);

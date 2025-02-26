@@ -73,11 +73,11 @@ class UserMovieController extends Controller
     {
         $movies = DB::table('UsersMaxRatings')
             ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
-            ->select('UsersMaxRatings.user_id', 'movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating')
+            ->select('UsersMaxRatings.user_id','UsersMaxRatings.movie_id','movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating')
             ->whereIn('UsersMaxRatings.max_rating', function($query) {
                 $query->select(DB::raw('max(max_rating)'))
                       ->from('UsersMaxRatings')
-                      ->groupBy('user_id');
+                      ->groupBy('UsersMaxRatings.user_id');
 
             })
             ->inRandomOrder() // a filmek véletszerű sorrendben jelennek
