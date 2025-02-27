@@ -79,10 +79,16 @@ class User extends Authenticatable
         return $this->hasMany(ForumComment::class, 'user_id');
     } 
 
+    public function picture()
+    {
+        return $this->hasOne(Pictures::class, 'user_id');
+    }
+
     protected static function booted() // itt állítjuk be a user törlését, és egyben a hozzá kapcsolód táblák rekordjait is
     {
         static::deleting(function ($user) {
             $user->userMovies()->update(['deleted_at' => now()]); // beállítás a hozzá kapcsolódó táblához is, h annak a rekordjai is "törlődjenek"
+            $user->pictures()->update(['deleted_at' => now()]);
         });
     }
 
@@ -93,6 +99,8 @@ class User extends Authenticatable
         static::restored(function ($user) {
             Log::info("User restored: " . $user->id);
             $user->userMovies()->withTrashed()->restore(); //withtrashed biztisít h a törölt rekordok visszaállnak
+            $user->pictures()->withTrashed()->restore(); // visszaállítjuk a törölt profilképet
+
         });
     }
 }

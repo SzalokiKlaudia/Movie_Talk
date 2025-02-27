@@ -18,8 +18,7 @@ Route::post('/register',[RegisteredUserController::class, 'store']);
 //Kijelentkezési útvonal minden bejelentkezett felhasználónak
 //Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
 
-Route::get('file-upload', [PictureController::class, 'index'])->name('file.upload');// képfeltöltés
-Route::post('file-upload', [PictureController::class, 'store'])->name('file.upload.store'); // képfeltöltés
+//Route::get('file-upload', [PictureController::class, 'index'])->name('file.upload');// képfeltöltés
 
 Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);// teszteléshez
 Route::post('/logout-bearer', [AuthenticatedSessionController::class, 'logout'])->middleware('auth:sanctum');
@@ -46,10 +45,8 @@ Route::middleware(['auth:sanctum'])
     Route::patch('/user/add-rating', [UserMovieController::class, 'updateRatingAndWatchingDate']);// értékelés
     Route::get('/user/movies', [UserMovieController::class, 'index']); // ő visszaadja a bej felh filmjeit
     Route::delete('/user/movies/{movie}', [UserMovieController::class, 'destroy']);
-
-
-
-
+    Route::post('user/profile-picture/upload', [PictureController::class, 'store']); // képfeltöltés
+    Route::get('/user/profile-picture', [PictureController::class, 'show']); // kép lekérés
 
 
   
@@ -62,6 +59,7 @@ Route::middleware(['auth:sanctum', Admin::class])
     Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']); // itt soft delete-el törli
     Route::patch('/admin/users/{id}/restore', [AdminController::class, 'restoreUser']); // visszaállítja  a törölt felh-t
     Route::get('/admin/user-movies/{isActive}/{userName?}', [AdminController::class, 'getUsersMovies']); // listázza a fh filmjeit, paraméter alapján
+  
 
 
 });

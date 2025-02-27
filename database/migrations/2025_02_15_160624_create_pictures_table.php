@@ -14,12 +14,21 @@ return new class extends Migration
     {
         Schema::create('pictures', function (Blueprint $table) {
             $table->id();
-            $table->string('title');        
+            $table->unsignedBigInteger('user_id')->unique();
+            $table->string('title')->nullable();        
             $table->string('name')->nullable();
+            $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
+
         });
 
-        Pictures::create(['title'=>'picture 1',"name"=>"pictures/_DSC3794.jpg"]);
+        Pictures::create([
+            'user_id' => 2, 
+            'title' => 'picture 1',
+            'name' => 'pictures/_DSC3794.jpg'
+        ]);    
     }
 
     /**

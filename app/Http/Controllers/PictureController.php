@@ -4,32 +4,55 @@ namespace App\Http\Controllers;
 
 use App\Models\Pictures;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PictureController extends Controller
 {
-    public function index() 
-    { 
-        $files = Pictures::latest()->get(); 
-        return $files; 
+    public function show(Request $request)
+    {
+        $user = auth()->user();
+        $picture = Pictures::where('user_id', $user->id)->first();
+    
+        if ($picture) {
+            return response()->json(['picture' => asset('storage/' . $picture->name)]);
+        }else{
+            return response()->json(['picture' => null]); // ha nincs képünk akkor nllt küldünk
+
+        }
+
     }
 
     public function store(Request $request)
     {
- // a kérés validálásához a validate függvényt használjuk. Beállítjuk az elfogadott képformátumokat
- // és a feltölthető kép maximális méretét. 
-     $request->validate([
-         'title' => 'required',
-         'name' =>  'image|mimes:jpeg,png,jpg,gif|max:2048',
-     ]);
-     $file = $request->file('name');   // fájl nevének lekérése  
-     $extension = $file->getClientOriginalName(); //kiterjesztés
-     $imageName = time() . '.' . $extension; // a kép neve az időbéjegnek köszönhetően egyedi lesz. 
-     $file->move(public_path('pictures'), $imageName); //átmozgatjuk a public mappa kepek könyvtárába 
-     $kepek = new Pictures(); // Létrehozzuk a kép objektumot. 
-     $kepek->name = 'pictures/' . $imageName; // megadjuk az új fájl elérési utját
-     $kepek->title = $request->title; // megadjuk a kép címét
-     $kepek->save(); //elmentjük
+        $request->validate([
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-     return redirect()->route('file.upload')->with('success', 'Product created successfully.');
+        $user = auth()->user();
+        $picture = Pictures::where('user_id', $user->id)->first();
+
+
+        // ha van, akkor töröljük a régit
+        if ($picture && Storage::disk('public')->exists($picture->name)) {
+            // A régi kép törlése
+            Storage::disk('public')->delete($picture->name);
+            \Log::info('Old profile picture deleted: ' . $picture->name);
+        }
+        // mentjük a picture mappába
+        $path = $request->file('profile_picture')->store('pictures', 'public');
+
+        if ($picture) {// ha van képünk frissítjük ab-ban elérési utat
+            $picture->name = $path;
+            $picture->save();
+        } else {// ha nicns kép akkor új rekord kerül ab-ba
+            $picture = new Pictures();
+            $picture->user_id = $user->id;
+            $picture->name = $path;
+            $picture->save();
+        }
+        return response()->json([
+            'message' => 'Profile picture succesfully uploaded!',
+            'picture' => asset('storage/' . $path)
+        ]);
     }
 }
