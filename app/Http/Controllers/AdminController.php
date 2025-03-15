@@ -5,19 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserMovie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
+
 {
+
+        public function getUsersForAdmin()
+        {
+            if (Auth::user() && Auth::user()->is_admin) {
+                return response()->json(User::all());
+            }
+            
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
         // admin listázza a usereket
         public function getUsers(int $isActive, string $userName = null) // ha  nem ad username-et akkor default null
         {
             $users = User::withTrashed()->select([ // kell a withtrashed h mutasa a törölt fh-kat is a soft delet aut eltakarja
                     'id',
-                    'email',
                     'user_name',
+                    'email',
                     'name',
+                    'gender',
                     'birth_year',
+                    'created_at',
                     'deleted_at'
                 ])
                 ->when($userName, fn($query) => $query->where('user_name', 'LIKE', "%{$userName}%"))

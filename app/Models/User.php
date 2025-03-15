@@ -29,8 +29,7 @@ class User extends Authenticatable
         'gender',
         'birth_year',
         'is_admin',
-        'deleted_at',
-        'password',
+        'password'
     ];
 
     public function isAdmin()  {
@@ -79,7 +78,7 @@ class User extends Authenticatable
         return $this->hasMany(ForumComment::class, 'user_id');
     } 
 
-    public function picture()
+    public function pictures()
     {
         return $this->hasOne(Pictures::class, 'user_id');
     }
@@ -87,20 +86,20 @@ class User extends Authenticatable
     protected static function booted() // itt állítjuk be a user törlését, és egyben a hozzá kapcsolód táblák rekordjait is
     {
         static::deleting(function ($user) {
-            $user->userMovies()->update(['deleted_at' => now()]); // beállítás a hozzá kapcsolódó táblához is, h annak a rekordjai is "törlődjenek"
-            $user->pictures()->update(['deleted_at' => now()]);
+            $user->userMovies()->delete(); // beállítás a hozzá kapcsolódó táblához is, h annak a rekordjai is "törlődjenek"
+            $user->pictures()->delete();
         });
-    }
 
-    protected static function boot() // itt állítjuk be a törölt userek visszaállítását, és a hozzá kapcsolódó táblák rekordjaiban is visszaáll.
-    {
-        parent::boot();
-
-        static::restored(function ($user) {
+        static::restoring(function ($user) {
             Log::info("User restored: " . $user->id);
             $user->userMovies()->withTrashed()->restore(); //withtrashed biztisít h a törölt rekordok visszaállnak
             $user->pictures()->withTrashed()->restore(); // visszaállítjuk a törölt profilképet
 
+            $user->update(['deleted_at' => null]); // A felhasználó deleted_at mezőjét null-ra állítjuk
+
+
         });
     }
 }
+
+  

@@ -36,23 +36,22 @@ class UserController extends Controller
 
     }
 
- 
 
-    
-    public function topActiveUsers()//megszámoljuk az aktív felh-kat és abból a top 5
-    {    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', DB::raw('COUNT(user_movies.user_id) as number'))
+    public function topActiveUsers() // megszámoljuk az aktív felhasználókat és abból a top 5 legtöbbet szavazattak
+{
+    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', 'pictures.name as profile_picture_name', DB::raw('COUNT(user_movies.user_id) as number'))
         ->join('users', 'users.id', '=', 'user_movies.user_id') 
+        ->leftJoin('pictures', 'pictures.user_id', '=', 'users.id') 
         ->whereNotNull('user_movies.rating') 
-        ->whereNull('users.deleted_at')  // töröltet ne számoljon
-        ->whereNull('user_movies.deleted_at')
-        ->groupBy('users.id', 'users.user_name', 'users.created_at') 
+        ->whereNull('users.deleted_at') 
+        ->whereNull('user_movies.deleted_at') 
+        ->groupBy('users.id', 'users.user_name', 'users.created_at', 'pictures.name') 
         ->orderByDesc('number') 
         ->limit(5) 
         ->get();
-    
-        return response()->json($topUsers);
 
-    }
+    return response()->json($topUsers); 
+}
 
 
  

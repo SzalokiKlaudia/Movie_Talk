@@ -22,14 +22,13 @@ class SimpleSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string'
+            'title' => 'nullable|string' //nem kötelező
         ];
     }
 
     public function messages(): array
     {
         return [
-            'title.required' => 'Title field is empty',
             'title.string' => 'Title must be a string'
         ];
     }

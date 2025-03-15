@@ -6,6 +6,9 @@ use App\Models\Movie;
 use App\Http\Requests\StoreMovieRequest;
 use App\Http\Requests\UpdateMovieRequest;
 use App\Http\Requests\SimpleSearchRequest;
+use App\Http\Requests\MovieSearchRequest;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
@@ -72,7 +75,14 @@ class MovieController extends Controller
         $validatedRequest = $request->validated();
         $title = $validatedRequest['title'];
 
-        $movies = Movie::where('title','like','%'. $title . '%')->get();
+        if(empty($title)){
+            return response()->json([
+                'success' => false,
+                'message' => 'Title is empty!'
+            ], 400);
+        }
+
+        $movies = Movie::where('title','like',$title . '%')->get();//collenction objektumot ad vissza
 
         if ($movies->isEmpty()) {
             return response()->json([
@@ -81,13 +91,134 @@ class MovieController extends Controller
             ], 404);
         }
     
+        $moviesWithGenresAndKeywords = $movies->map(function ($movie) { //minden egyes filmen végigmegyünk és megkeressük a műfajait, kulcsszavait
+            $genres = DB::table('movie_genres')
+                ->join('genres', 'genres.id', '=', 'movie_genres.genre_id')
+                ->where('movie_genres.movie_id', $movie->id)
+                ->pluck('name');//tömbbel tér vissza a műfajok
+
+            $keywords = DB::table('movie_keywords')
+                ->join('keywords', 'keywords.id', '=', 'movie_keywords.keyword_id')
+                ->where('movie_keywords.movie_id', $movie->id)
+                ->pluck('name');
+
+            $movie->genres = $genres;//hozzáadjuk a műfajokat az akt film objektumhoz
+            $movie->keywords = $keywords;//hozzáadjuk a kulcssazavakat az akt film objektumhoz.
+
+            return $movie;
+        });
+
         return response()->json([
             'success' => true,
-            'data' => $movies
+            'data' => $moviesWithGenresAndKeywords
         ], 200);
 
      }
 
+     public function getMovieGenresAndKeywords($id){//lekérjük a film kulcsszavait és műfajait megjelenítésre
+      
+        /*$genres = DB::table('movie_genres')
+            ->join('genres', 'genres.id', '=', 'movie_genres.genre_id')
+            ->where('movie_genres.movie_id', $id)
+            ->pluck('name');
+
+        $keywords = DB::table('movie_keywords')
+            ->join('keywords', 'keywords.id', '=', 'movie_keywords.keyword_id')
+            ->where('movie_keywords.movie_id', $id)
+            ->pluck('name');
+
+        return response()->json([
+            'id' => $id, 
+            'genres' => $genres,
+            'keywords' => $keywords,
+        ], 200);*/
+
+     }
+
+    
+     public function advancedSearch(MovieSearchRequest $request) {
+
+        $releaseFrom = $request->filled('releaseFrom') ? Carbon::parse($request->releaseFrom)->toDateString() : null;//dátum formázás h biztos jó legyen a dátum összehasonlítás
+        $releaseTo = $request->filled('releaseTo') ? Carbon::parse($request->releaseTo)->toDateString() : null;
+
+        $subquery = DB::table('movies as m')
+            ->select([
+                'm.id',
+                'm.title',
+                'm.release_date', 
+                'm.description', 
+                'm.duration_minutes', 
+                'm.image_url', 
+                'm.trailer_url', 
+                'm.cast_url', 
+                'm.created_at', 
+                'm.updated_at',
+                DB::raw('GROUP_CONCAT(DISTINCT g.name) as genre_name'),//egyetlen stringben fűzi össze a műfaj értékeket
+                DB::raw('GROUP_CONCAT(DISTINCT k.name) as keyword')//-||-
+            ])
+            ->join('movie_genres as mg', 'm.id', '=', 'mg.movie_id')
+            ->join('genres as g', 'g.id', '=', 'mg.genre_id')
+            ->join('movie_keywords as mk', 'm.id', '=', 'mk.movie_id')
+            ->join('keywords as k', 'k.id', '=', 'mk.keyword_id')
+            ->groupBy('m.id','m.title','m.release_date','m.description', 
+                'm.duration_minutes', 
+                'm.image_url', 
+                'm.trailer_url', 
+                'm.cast_url', 
+                'm.created_at', 
+                'm.updated_at', );
+
+        $query = DB::table(DB::raw("({$subquery->toSql()}) as a"))//ellenőrzés
+            ->mergeBindings($subquery);
+
+
+            if ($request->filled('title') && $request->title !== '') {
+                $query->where('a.title', 'LIKE', "%{$request->title}%");
+            }
+            
+            if ($request->filled('genre') && $request->genre !== '') {
+                $query->where('a.genre_name', 'LIKE', "%{$request->genre}%");
+            }
+            
+            if ($request->filled('keyword') && $request->keyword !== '') {
+                $query->where('a.keyword', 'LIKE', "%{$request->keyword}%");
+            }
+            
+            if ($releaseFrom && $releaseTo) {
+                $query->whereBetween(DB::raw("STR_TO_DATE(a.release_date, '%Y-%m-%d')"), [$releaseFrom, $releaseTo]);
+            } elseif ($releaseFrom) {
+                $query->where(DB::raw("STR_TO_DATE(a.release_date, '%Y-%m-%d')"), '>=', $releaseFrom);
+            } elseif ($releaseTo) {
+                $query->where(DB::raw("STR_TO_DATE(a.release_date, '%Y-%m-%d')"), '<=', $releaseTo);
+            }
+        
+        $movies = $query->get();//collection obj ad vissza amin már lehet map-elni
+
+        $moviesWithGenresAndKeywords = $movies->map(function ($movie) {
+            $movie->genres = explode(',', $movie->genre_name); //átalakítjuk a string értékeket tömbbé explode segítségével a megjelenítés miatt kell
+            $movie->keywords = explode(',', $movie->keyword); 
+            
+            unset($movie->genre_name, $movie->keyword);//
+    
+            return $movie;
+        });
+
+    
+        if ($moviesWithGenresAndKeywords->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No data found',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data successfully selected',
+            'data' => $moviesWithGenresAndKeywords,
+        ], 200);
+
+
+    }
 
     public function index() //összes film lekérdezése
     {
@@ -108,10 +239,12 @@ class MovieController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Movie $movie)
+    public function show($id)
     {
-        //
+        
     }
+        
+    
 
     /**
      * Update the specified resource in storage.
