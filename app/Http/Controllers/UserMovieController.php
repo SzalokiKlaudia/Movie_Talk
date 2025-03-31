@@ -20,14 +20,18 @@ class UserMovieController extends Controller
             return response()->json(['message' => 'Did you forget to login?'], 401); 
         }
 
-        UserMovie::create([
+        $userMovie = UserMovie::create([
             'user_id' => $user->id,
             'movie_id' => $request->movie_id,
             'rating' => null,
             'watching_date' => null
         ]);
 
-        return response()->json(['message' => 'You have succesfully added the movie to the list'], 201);
+        return response()->json([
+            'success' => true,
+            'message' => 'You have succesfully added the movie to the list!',
+            'data' => $userMovie,
+        ], 200);
     }
 
     public function updateRatingAndWatchingDate(UpdateUserMovieRequest $request) // validálunk form reqest-el
@@ -49,14 +53,43 @@ class UserMovieController extends Controller
         $userMovie->updated_at = Carbon::now();
         $userMovie->save();
 
-        return response()->json(['message' => 'Movie updated successfully']);
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Movie is rated successfully!',
+            'data' => $userMovie,
+        ], 200);
 
     }
 
     public function index() // bej. user filmjei
     {
-        $movies = UserMovie::where('user_id', Auth::id())->get();
-        return response()->json($movies);
+        $userMovies = DB::table('user_movies as um')
+        ->select([
+            'um.id',
+            'um.user_id',
+            'um.movie_id',
+            'm.title',
+            'um.watching_date',
+            'um.rating',
+        ])
+        ->join('movies as m', 'm.id', '=', 'um.movie_id')
+        ->where('um.user_id', Auth::id())
+        ->get();
+
+        if ($userMovies->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'You have not added any movies to your list yet!',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'You can browse freely through your movie list now!',
+            'data' => $userMovies,
+        ], 200);
     }
 
     public function destroy(UserMovie $movie) // törtli a saját filmjeit
@@ -69,7 +102,7 @@ class UserMovieController extends Controller
         return response()->json(['message' => 'Movie deleted successfully']);
     }
 
-    public function getUsersTopRatedMovies()
+    /*public function getUsersTopRatedMovies()
     {
         $movies = DB::table('UsersMaxRatings')
             ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
@@ -86,6 +119,87 @@ class UserMovieController extends Controller
             ->get();
 
         return response()->json($movies);
+    }*/
+
+    public function getUsersTopRatedMovies()//userek top filmjei
+    {
+        $movies = DB::table('UsersMaxRatings')
+            ->select('UsersMaxRatings.user_id','UsersMaxRatings.movie_id','movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating','movies.trailer_url','movies.cast_url','movies.description','movies.release_date','movies.duration_minutes')
+            ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
+            //->join('movie_genres','movies.id','=','movie_genres.movie_id')
+            //->join('genres','genres.id','=','movie_genres.genre_id')
+            //->join('movie_keywords','movie_keywords.movie_id','=','movies.id')
+            //->join('keywords','keywords.id','=','movie_keywords.keyword_id')
+            ->whereIn('UsersMaxRatings.max_rating', function($query) {
+                $query->select(DB::raw('max(max_rating)'))
+                      ->from('UsersMaxRatings')
+                      ->groupBy('UsersMaxRatings.user_id');
+
+            })
+            ->inRandomOrder() // a filmek véletszerű sorrendben jelennek
+            ->distinct()
+            ->limit(5) 
+            ->get();
+
+            $moviesWithGenresAndKeywords = $movies->map(function ($movie) { //minden egyes filmen végigmegyünk és megkeressük a műfajait, kulcsszavait
+                $genres = DB::table('movie_genres')
+                    ->join('genres', 'genres.id', '=', 'movie_genres.genre_id')
+                    ->where('movie_genres.movie_id', $movie->movie_id)
+                    ->pluck('name');//tömbbel tér vissza a műfajok
+    
+                $keywords = DB::table('movie_keywords')
+                    ->join('keywords', 'keywords.id', '=', 'movie_keywords.keyword_id')
+                    ->where('movie_keywords.movie_id', $movie->movie_id)
+                    ->pluck('name');
+
+                    $movie->genres = $genres;
+                    $movie->keywords = $keywords;
+    
+    
+                return $movie;
+            });
+
+        return response()->json([
+            'succes'=>true,
+            'data'=>$moviesWithGenresAndKeywords,
+
+        ],200);
+    }
+
+    public function userFavoriteMoviesByGenre($userId) // top filmek műfajonként egy suernek
+    {
+        $movies = DB::table('UsersMaxRatings as u') 
+            ->select('u.movie_id', 'f.title','u.user_id', 'u.max_rating','f.image_url','f.release_date','f.trailer_url','f.cast_url','f.description','f.duration_minutes')
+            ->join('movies as f', 'u.movie_id', '=', 'f.id')
+            ->where('u.user_id', '=', $userId)
+            ->whereRaw('u.max_rating = (SELECT MAX(l.max_rating) FROM UsersMaxRatings l WHERE l.user_id = u.user_id)')
+            ->groupBy('u.movie_id', 'f.title','u.user_id', 'u.max_rating','f.image_url', 'f.release_date','f.trailer_url','f.cast_url','f.description','f.duration_minutes')
+            ->inRandomOrder() // a filmek véletszerű sorrendben jelennek
+            ->limit(5) 
+            ->get();
+
+            $moviesWithGenresAndKeywords = $movies->map(function ($movie) { //minden egyes filmen végigmegyünk és megkeressük a műfajait, kulcsszavait
+                $genres = DB::table('movie_genres')
+                    ->join('genres', 'genres.id', '=', 'movie_genres.genre_id')
+                    ->where('movie_genres.movie_id', $movie->movie_id)
+                    ->pluck('name');//tömbbel tér vissza a műfajok
+    
+                $keywords = DB::table('movie_keywords')
+                    ->join('keywords', 'keywords.id', '=', 'movie_keywords.keyword_id')
+                    ->where('movie_keywords.movie_id', $movie->movie_id)
+                    ->pluck('name');
+
+                    $movie->genres = $genres;
+                    $movie->keywords = $keywords;
+            
+                return $movie;
+            });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Top movies are ready to show!',
+            'data' => $moviesWithGenresAndKeywords,
+        ], 200);
     }
 
 

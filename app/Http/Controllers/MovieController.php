@@ -198,7 +198,7 @@ class MovieController extends Controller
             $movie->genres = explode(',', $movie->genre_name); //átalakítjuk a string értékeket tömbbé explode segítségével a megjelenítés miatt kell
             $movie->keywords = explode(',', $movie->keyword); 
             
-            unset($movie->genre_name, $movie->keyword);//
+            unset($movie->genre_name, $movie->keyword);
     
             return $movie;
         });

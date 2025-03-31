@@ -44,11 +44,13 @@ Route::middleware(['auth:sanctum'])
     //módositunk adatot felhazsnálónak, név és szül_év
     Route::patch('/user/update', [UserController::class, 'userDataModify']);
     Route::post('/user/add-movies', [UserMovieController::class, 'addMovieToUser']); //hozzáadja a user a filmet a sajátjába
-    Route::patch('/user/add-rating', [UserMovieController::class, 'updateRatingAndWatchingDate']);// értékelés
+    Route::patch('/user/add/rating', [UserMovieController::class, 'updateRatingAndWatchingDate']);// értékelés
     Route::get('/user/movies', [UserMovieController::class, 'index']); // ő visszaadja a bej felh filmjeit
     Route::delete('/user/movies/{movie}', [UserMovieController::class, 'destroy']);
     Route::post('user/profile-picture/upload', [PictureController::class, 'store']); // képfeltöltés
     Route::get('/user/profile-picture', [PictureController::class, 'show']); // kép lekérés
+    Route::get('user/{userId}/favorite-movies', [UserMovieController::class, 'userFavoriteMoviesByGenre']); //top filmek
+
 
 
   
