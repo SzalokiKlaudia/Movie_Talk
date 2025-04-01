@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Models\UserMovie;
 use Illuminate\Http\Request;
@@ -20,14 +21,13 @@ class UserController extends Controller
         return response()->json($users);
     }
 
-    public function userDataModify(Request $request)
+    public function userDataModify(UpdateUserRequest $request)
     {
+        
         $user = Auth::user(); //automatikusan bejelentkezett felhasználó
 
-        $user->update([
-            'name' => $request->input('name'),
-            'birth_year' => $request->input('birth_year'),
-        ]);
+        $user->update($request->validated());//csak a validáltat friistíjük ab-ban
+           
 
         return response()->json([
             'message' => 'User data updated! ',
