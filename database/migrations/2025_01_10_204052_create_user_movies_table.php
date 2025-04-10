@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('movie_id'); //alap típusa az id-nek nagyobb értéket vesz fel mint az int
             $table->tinyInteger('rating')->nullable()->default(null);
             $table->date('watching_date')->nullable()->default(null);
+            $table->softDeletes();
             $table->timestamps();
 
 

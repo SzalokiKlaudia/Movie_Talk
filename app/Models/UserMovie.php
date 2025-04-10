@@ -17,11 +17,10 @@ class UserMovie extends Model
         'user_id',
         'movie_id',
         'rating',
-        'watched_date',
-        'planning_date',
+        'watching_date',
       
     ];
-    protected $dates = ['deleted_at'];
+    
 
     public function user()
     {
@@ -30,9 +29,11 @@ class UserMovie extends Model
 
 
 
-       // 1 film -> több saját film (felhasználói profil)
-       public function movie()
-       {
-           return $this->belongsTo(Movie::class, 'movie_id'); // N:1 kapcsolat
-       }
+     // 1 film -> több saját film (felhasználói profil)
+    public function movie()
+    {
+        return $this->belongsTo(Movie::class, 'movie_id'); // N:1 kapcsolat
+    }
+
+    
 }

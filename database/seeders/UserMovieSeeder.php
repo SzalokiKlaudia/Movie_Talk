@@ -14,7 +14,7 @@ class UserMovieSeeder extends Seeder
      */
     public function run(): void
     {
-        $userIds = [2, 3]; // random adatokat generálunk a 2-es, és 3-as felh-nak
+        $userIds = [2,3,4,5,6]; // random adatokat generálunk a 2-es, és 3-as felh-nak
 
         // Lekérjük az összes elérhető filmet
         $movies = Movie::inRandomOrder()->limit(10)->get(); // kiválasztunk 10 random filmet ab-ból
@@ -28,6 +28,8 @@ class UserMovieSeeder extends Seeder
                     'movie_id' => $movie->id,
                     'created_at' => now(),
                     'updated_at' => now(),
+                    'rating' => 5,
+                    'watching_date' => now(),
                 ]);
             }
         }

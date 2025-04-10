@@ -138,7 +138,7 @@ class UserMovieController extends Controller
             ->limit(5) 
             ->get();
 
-            $moviesWithGenresAndKeywords = $movies->map(function ($movie) { //minden egyes filmen végigmegyünk és megkeressük a műfajait, kulcsszavait
+            $moviesWithGenresAndKeywords = $movies->map(function ($movie) { //minden egyes filmen végigmegyünk és megkeressük a műfajait, kulcsszavait (kattinthatóság miatt)
                 $genres = DB::table('movie_genres')
                     ->join('genres', 'genres.id', '=', 'movie_genres.genre_id')
                     ->where('movie_genres.movie_id', $movie->movie_id)

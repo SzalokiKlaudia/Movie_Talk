@@ -15,7 +15,6 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
     use SoftDeletes;
-    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that are mass assignable.
@@ -83,7 +82,7 @@ class User extends Authenticatable
         return $this->hasOne(Pictures::class, 'user_id');
     }
 
-    protected static function booted() // itt állítjuk be a user törlését, és egyben a hozzá kapcsolód táblák rekordjait is
+    protected static function booted() // itt állítjuk be a hozzá kapcsolód táblák rekordjait is
     {
         static::deleting(function ($user) {
             $user->userMovies()->delete(); // beállítás a hozzá kapcsolódó táblához is, h annak a rekordjai is "törlődjenek"

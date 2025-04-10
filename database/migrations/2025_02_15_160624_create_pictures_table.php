@@ -24,11 +24,11 @@ return new class extends Migration
 
         });
 
-        Pictures::create([
-            'user_id' => 2, 
-            'title' => 'picture 1',
-            'name' => 'pictures/_DSC3794.jpg'
-        ]);    
+        // Pictures::create([
+        //     'user_id' => 2, 
+        //     'title' => 'picture 1',
+        //     'name' => 'pictures/_DSC3794.jpg'
+        // ]);    
     }
 
     /**

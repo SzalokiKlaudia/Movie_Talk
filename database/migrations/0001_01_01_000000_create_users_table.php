@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('gender', ['male','female']);
             $table->integer('birth_year');
             $table->boolean('is_admin')->default(false);
-            $table->dateTime('deleted_at')->nullable();//alapért. szernt
+            $table->softDeletes();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
