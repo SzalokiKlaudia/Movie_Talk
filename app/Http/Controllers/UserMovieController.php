@@ -126,10 +126,7 @@ class UserMovieController extends Controller
         $movies = DB::table('UsersMaxRatings')
             ->select('UsersMaxRatings.user_id','UsersMaxRatings.movie_id','movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating','movies.trailer_url','movies.cast_url','movies.description','movies.release_date','movies.duration_minutes')
             ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
-            //->join('movie_genres','movies.id','=','movie_genres.movie_id')
-            //->join('genres','genres.id','=','movie_genres.genre_id')
-            //->join('movie_keywords','movie_keywords.movie_id','=','movies.id')
-            //->join('keywords','keywords.id','=','movie_keywords.keyword_id')
+            
             ->whereIn('UsersMaxRatings.max_rating', function($query) {
                 $query->select(DB::raw('max(max_rating)'))
                       ->from('UsersMaxRatings')
@@ -166,7 +163,7 @@ class UserMovieController extends Controller
         ],200);
     }
 
-    public function userFavoriteMoviesByGenre($userId) // top filmek műfajonként egy suernek
+    public function userFavoriteMoviesByGenre($userId) // top filmek egy user-nek
     {
         $movies = DB::table('UsersMaxRatings as u') 
             ->select('u.movie_id', 'f.title','u.user_id', 'u.max_rating','f.image_url','f.release_date','f.trailer_url','f.cast_url','f.description','f.duration_minutes')

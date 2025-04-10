@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         // Users
-        DB::statement('ALTER TABLE users ADD CONSTRAINT check_birth_year CHECK (birth_year <= ' . now()->year . ')');
+        DB::statement('ALTER TABLE users ADD CONSTRAINT check_birth_year CHECK (birth_year < ' . now()->year . ')');
 
         // Movies
         //DB::statement("ALTER TABLE movies ADD CONSTRAINT check_release_date CHECK (release_date <= " . today()->toDateString() . ")"); //check constraint a mgjelenés évre

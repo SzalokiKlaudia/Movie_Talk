@@ -61,4 +61,6 @@ Artisan::command('import:movies-keywords', function () {
 // php artisan import:movies-genres 
 //php artisan import:movies-keywords
 
+//seederek
 // php artisan db:seed --class=UserSeeder
+// php artisan db:seed --class=UserMovieSeeder

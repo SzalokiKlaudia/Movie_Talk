@@ -22,9 +22,9 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_name' => 'required|string|max:20',
-            'email' => 'required|email|max:50',
-            'birth_year' => 'required|digits:4|integer|min:1950|max:' . date('Y'),
+            'user_name' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:50',
+            'birth_year' => 'nullable|digits:4|integer|min:1950|max:' . date('Y'),
         ];
     }
 

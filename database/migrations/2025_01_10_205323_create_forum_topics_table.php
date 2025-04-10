@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('forum_topics', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->string('title',30)->unique();
             $table->dateTime('created_at');
             //$table->timestamps();
