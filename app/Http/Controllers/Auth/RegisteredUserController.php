@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -18,19 +19,13 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(RegisterUserRequest $request)
     {
-        $validated = $request->validate([
-            'user_name' => 'required|string|max:30|unique:users,user_name',
-            'email' => 'required|email|max:50|unique:users,email',
-            'name' => 'required|string|max:30',
-            'gender' => 'required|string|max:10',
-            'birth_year' => 'required|integer',
-            'password' => 'required|string|confirmed|min:8',
-        ]);
+        $validated = $request->validated();
+       
 
         $user = User::create([
-            'password' => Hash::make($request->string('password')),// Jelszó hashelése
+            'password' => Hash::make($validated['password']),// Jelszó hashelése
             'user_name' => $validated['user_name'],
             'email' => $validated['email'],
             'name' => $validated['name'],

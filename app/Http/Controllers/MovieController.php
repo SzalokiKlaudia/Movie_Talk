@@ -82,7 +82,7 @@ class MovieController extends Controller
             ], 400);
         }
 
-        $movies = Movie::where('title','like',$title . '%')->get();//collenction objektumot ad vissza
+        $movies = Movie::where('title','like','%' . $title . '%')->get();//collenction objektumot ad vissza
 
         if ($movies->isEmpty()) {
             return response()->json([

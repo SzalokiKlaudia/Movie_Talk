@@ -35,7 +35,7 @@ class UpdateUserRequest extends FormRequest
             'birth_year.integer' => 'Birth year must contain numbers.',
             'email.email' => 'The email must be an email.',
             'user_name.string' => 'The username must be characters.',
-           
+            'user_name.max' => 'The length of username must be less than 20 characters'
         ];
     }
 }

@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 //Route::get('file-upload', [PictureController::class, 'index'])->name('file.upload');// képfeltöltés
 
-Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);// teszteléshez
-Route::post('/logout-bearer', [AuthenticatedSessionController::class, 'logout'])->middleware('auth:sanctum');
+//Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);// teszteléshez
+//Route::post('/logout-bearer', [AuthenticatedSessionController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/movie/{id}/details', [MovieController::class, 'getMovieGenresAndKeywords']); //film műfajai, kulcsszavai
 Route::get('/premier-movies', [MovieController::class, 'getPremierMoviesTmdb']);//népszerűség szerint rendezve az első 5 premier film a kezdőoldalon!
