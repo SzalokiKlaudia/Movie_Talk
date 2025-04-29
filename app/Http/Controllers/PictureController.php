@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pictures;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PictureController extends Controller
@@ -11,10 +12,14 @@ class PictureController extends Controller
     public function show(Request $request)
     {
         $user = auth()->user();
-        $picture = Pictures::where('user_id', $user->id)->first();
+        $picture = DB::table('pictures')
+            ->select(DB::raw("CONCAT('/storage/', pictures.name) as profile_picture_name"))
+            ->where('user_id', $user->id)
+            ->first();
     
         if ($picture) {
-            return response()->json(['picture' => asset('storage/' . $picture->name)]);
+            return response()->json(['picture' => $picture->profile_picture_name]);
+
         }else{
             return response()->json(['picture' => null]); // ha nincs képünk akkor nllt küldünk
 
@@ -50,9 +55,12 @@ class PictureController extends Controller
             $picture->name = $path;
             $picture->save();
         }
+
+        $url = '/storage/' . ltrim($path, '/');
+
         return response()->json([
             'message' => 'Profile picture succesfully uploaded!',
-            'picture' => asset('storage/' . $path)
+            'picture' => $url
         ]);
     }
 }
