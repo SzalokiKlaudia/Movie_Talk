@@ -39,7 +39,10 @@ class UserController extends Controller
 
     public function topActiveUsers() // megszámoljuk az aktív felhasználókat, mely user hány értékelést adott le és abból a top 5
 {
-    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', 'pictures.name as profile_picture_name', DB::raw('COUNT(user_movies.user_id) as number'))
+    $topUsers = UserMovie::select('users.id', 'users.user_name', 'users.created_at', 'pictures.name', 
+        DB::raw("CONCAT('/storage/', pictures.name) as profile_picture_name"),
+        DB::raw('COUNT(user_movies.user_id) as number'))
+
         ->join('users', 'users.id', '=', 'user_movies.user_id') 
         ->leftJoin('pictures', 'pictures.user_id', '=', 'users.id') 
         ->whereNotNull('user_movies.rating') 
