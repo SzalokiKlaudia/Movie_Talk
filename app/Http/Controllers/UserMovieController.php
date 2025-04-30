@@ -124,17 +124,27 @@ class UserMovieController extends Controller
     public function getUsersTopRatedMovies()//userek top filmjei
     {
         $movies = DB::table('UsersMaxRatings')
-            ->select('UsersMaxRatings.user_id','UsersMaxRatings.movie_id','movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating','movies.trailer_url','movies.cast_url','movies.description','movies.release_date','movies.duration_minutes')
+            ->select('UsersMaxRatings.movie_id','movies.title', 'movies.image_url', 'UsersMaxRatings.max_rating','movies.trailer_url','movies.cast_url','movies.description','movies.release_date','movies.duration_minutes')
             ->join('movies', 'UsersMaxRatings.movie_id', '=', 'movies.id')
             
-            ->whereIn('UsersMaxRatings.max_rating', function($query) {
+            ->whereIn('UsersMaxRatings.max_rating', function($query) {//csak 5 pontos filmek szerepeljenek
                 $query->select(DB::raw('max(max_rating)'))
                       ->from('UsersMaxRatings')
                       ->groupBy('UsersMaxRatings.user_id');
 
             })
+            ->groupBy(
+                'UsersMaxRatings.movie_id',
+                'movies.title', 'movies.image_url',
+                'UsersMaxRatings.max_rating',
+                'movies.trailer_url',
+                'movies.cast_url',
+                'movies.description',
+                'movies.release_date',
+                'movies.duration_minutes'
+            )
+
             ->inRandomOrder() // a filmek véletszerű sorrendben jelennek
-            ->distinct()
             ->limit(5) 
             ->get();
 
@@ -163,7 +173,7 @@ class UserMovieController extends Controller
         ],200);
     }
 
-    public function userFavoriteMoviesByGenre($userId) // top filmek egy user-nek
+    public function userFavoriteMoviesByGenre($userId) // top filmek egy user-nek (csak 5-ös értékelésű filmek)
     {
         $movies = DB::table('UsersMaxRatings as u') 
             ->select('u.movie_id', 'f.title','u.user_id', 'u.max_rating','f.image_url','f.release_date','f.trailer_url','f.cast_url','f.description','f.duration_minutes')
