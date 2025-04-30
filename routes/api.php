@@ -13,13 +13,6 @@ use Illuminate\Support\Facades\Route;
 
 //Route::middleware('web')->group(base_path('routes/auth.php'));
 
-//bárki által elérhető
-//Route::post('/register',[RegisteredUserController::class, 'store']);
-//Kijelentkezési útvonal minden bejelentkezett felhasználónak
-//Route::middleware('auth:sanctum')->post('/logout', [AuthenticatedSessionController::class, 'destroy']);
-
-//Route::get('file-upload', [PictureController::class, 'index'])->name('file.upload');// képfeltöltés
-
 //Route::post('/login-bearer',[AuthenticatedSessionController::class, 'storeBearer']);// teszteléshez
 //Route::post('/logout-bearer', [AuthenticatedSessionController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -30,10 +23,6 @@ Route::post('/movie/title', [MovieController::class, 'getMovieByTitle']); // ado
 Route::post('/movie/advanced-search', [MovieController::class, 'advancedSearch']); // adott film adatának megjelenítése paraméterek szerint
 Route::get('/movie/top-users', [UserController::class, 'topActiveUsers']);//top 5 tagot kiadja
 Route::get('/movie/top-rated-movies', [UserMovieController::class, 'getUsersTopRatedMovies']);// fh-k legmagasabban értékelt filmjei
-//felhasználók toplistája...
-
-
-
 
 //regisztrált felhasználó
 Route::middleware(['auth:sanctum'])
@@ -51,9 +40,6 @@ Route::middleware(['auth:sanctum'])
     Route::get('/user/profile-picture', [PictureController::class, 'show']); // kép lekérés
     Route::get('user/{userId}/favorite-movies', [UserMovieController::class, 'userFavoriteMoviesByGenre']); //top filmek
 
-
-
-  
 });
 
 //admin útvonalak
@@ -65,8 +51,5 @@ Route::middleware(['auth:sanctum', Admin::class])
     Route::patch('/admin/users/{id}/restore', [AdminController::class, 'restoreUser']); // visszaállítja  a törölt felh-t
     Route::get('/admin/user-movies/{isActive}/{userName?}', [AdminController::class, 'getUsersMovies']); // listázza a fh filmjeit, paraméter alapján
   
-
-
 });
 
-//Route::post('/login',[AuthenticatedSessionController::class, 'store']);
